@@ -237,6 +237,12 @@ public:
         for (unsigned int i = 0; i < faces.size(); i++)
         {
             unsigned char* data = stbi_load((strpath + std::string(faces[i].c_str())).c_str(), &width, &height, &nrChannels, 0);
+            if (!data)
+            {
+                std::cerr << "Error loading image: " << (strpath + std::string(faces[i].c_str())).c_str() << std::endl;
+                std::cerr << "Reason: " << stbi_failure_reason() << std::endl;
+                continue; // in this way i can see if all the file are missing (or something else) or just someone 
+            }
             GLenum format;
             switch (nrChannels) {
             case 1: format = GL_RED; break;
