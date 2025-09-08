@@ -412,7 +412,7 @@ void Init()
     //plant4->LoadMesh("D:/repos/_Assets/weed_plant_4k/weed_plant_04_4k.obj");
     //plant4->LoadMesh("D:/repos/_Assets/house/house.obj");
 
-    barrel->LoadMesh("Assets/barrel_vino/wine_barrel_01_4k.obj");
+    //barrel->LoadMesh("Assets/barrel_vino/wine_barrel_01_4k.obj");
 
     glm::mat4 ModelMatrixCurve = glm::mat4(1.f);
     ModelMatrixCurve = glm::translate(ModelMatrixCurve, glm::vec3(-50.f, 0.01f - 2.f, -0.f));
@@ -440,7 +440,7 @@ void Init()
         // Optional: random rotation (e.g., for variation)
         // modelMatrix = glm::rotate(modelMatrix, glm::radians(i * 10.0f), glm::vec3(0.f, 1.f, 0.f));
 
-        renderingObjectList.push_back(renderableObject{ barrel, &shader, modelMatrix });
+        //renderingObjectList.push_back(renderableObject{ barrel, &shader, modelMatrix });
     }
 
     //renderingObjectList.push_back(renderableObject{ coso,&shader,ModelMatrixCurve}); //,std::move(truckAnimation) 

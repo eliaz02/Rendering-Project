@@ -1,0 +1,14 @@
+# Blender 4.3.2 MTL File: 'wine_barrel_01_4k.blend'
+# www.blender.org
+
+newmtl wine_barrel_01
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd wine_barrel_01_diff_4k.jpg
+map_Ns wine_barrel_01_rough_4k.jpg
+map_refl wine_barrel_01_metal_4k.exr
+map_Bump -bm 1.000000 wine_barrel_01_nor_gl_4k.exr
