@@ -1,4 +1,4 @@
-#pragma once
+    #pragma once
 
 #ifndef SCENE_H
 #define SCENE_H 
@@ -13,15 +13,15 @@
 
 #include "Utilities.h"
 #include "Shader.h"
-#include "Camera.h"
 #include "Mesh.h"
 #include "frameBufferObject.h"
 #include "LightStruct.h"
-#include "renderable_object.h"
+#include "Camera.h"
 #include "Skybox.h"
 
-extern Camera camera;
 
+
+class WindowContext;  //avoid circular declaratio #include "WindowContext.h"
 
 // Entity Component System forms the foundation of the entire architecture.
 // Rather than using traditional object - oriented inheritance hierarchies,
@@ -104,8 +104,8 @@ using DirectionalLightComponent = DirLight;
 struct RenderCommand {
     glm::mat4 modelMatrix;
     std::shared_ptr<BasicMesh> mesh;
-    bool castShadows;
-    bool receiveShadows;
+    bool castShadows{ true };
+    bool receiveShadows{ true };
 };
 
 struct InstancedRenderCommand {
@@ -123,14 +123,20 @@ struct LightData {
 class IRenderer {
 public:
     virtual ~IRenderer() = default;
-    virtual void initialize(int width, int height) = 0;
-    virtual void beginFrame(const Camera& camera) = 0;
+    virtual void initialize() = 0;
+    virtual void beginFrame() = 0;
     virtual void submitRenderCommand(const RenderCommand& command) = 0;
     virtual void submitInstancedRenderCommand(const InstancedRenderCommand& command) = 0;
     virtual void setLightData(const LightData& lights) = 0;
-    virtual void setSkybox(const Skybox& skybox) = 0;
+    virtual void setSkybox(const std::string& path, const std::vector<std::string>& faces) = 0;
     virtual void endFrame() = 0;
-    virtual void resize(int width, int height) = 0;
+    virtual void resize() = 0;
+protected:
+    // Prevent creating an IRenderer directly. Only derived classes can.
+    IRenderer() = default;
+    // Prevent copying/moving the interface itself.
+    IRenderer(const IRenderer&) = delete;
+    IRenderer& operator=(const IRenderer&) = delete;
 };
 
 
@@ -142,7 +148,8 @@ private:
     std::unique_ptr<ShadowMapFBO> shadowDirMap;
     std::unique_ptr<ShadowMapArrayFBO> shadowSpotMap;
     std::unique_ptr<ShadowMapCubeFBO> shadowPointMap;
-
+    bool m_spotShadowsInitialized = false;
+    bool m_pointShadowsInitialized = false;
     // Render commands for this frame
     std::vector<RenderCommand> renderCommands;
     std::vector<InstancedRenderCommand> instancedCommands;
@@ -154,48 +161,52 @@ private:
     glm::mat4 projectionMatrix;
     glm::mat4 modelMatrix;
 
-    int screenWidth, screenHeight;
+    WindowContext& m_context;
 
 public:
-    DeferredRenderer() = default;
+    DeferredRenderer(WindowContext& conetext) :
+        viewMatrix{ glm::mat4(0.f) },
+        projectionMatrix{ glm::mat4(0.f) },
+        modelMatrix{ glm::mat4(0.f) },
+        m_context(conetext)
+            {};
 
-    void initialize(int width, int height) override {
-        screenWidth = width;
-        screenHeight = height;
-
+    void initialize() override
+    {
         // Instance FBOs
-        gbuffer = std::make_unique<GBufferFBO>(width, height);
+        gbuffer = std::make_unique<GBufferFBO>();
         shadowDirMap = std::make_unique<ShadowMapFBO>(3000, 3000);
         shadowSpotMap = std::make_unique<ShadowMapArrayFBO>(1024, 1024);
         shadowPointMap = std::make_unique<ShadowMapCubeFBO>(1024);
-        fxaa = std::make_unique<FXAA>(width, height);
+        fxaa = std::make_unique<FXAA>();
 
         // Inizialize shader for shadow casting
         auto shader = std::make_shared<Shader>();
         auto shaderBox = std::make_shared<Shader>();
 
-        shader->load("shadowMap.vert", "shadowMap.frag");
+        shader->load("shader/shadowMap.vert", "shader/shadowMap.frag");
 
-        shaderBox->load("shadowMapPoint.vert", "shadowMapPoint.frag", "shadowMapPoint.geom");
+        shaderBox->load("shader/shadowMapPoint.vert", "shader/shadowMapPoint.frag", "shader/shadowMapPoint.geom");
 
         // Inizialize FBOs
-        gbuffer->Init();
-        shadowDirMap->Init(shader);
-        shadowSpotMap->Init(sizeof(lightData.spotLights), shader);
-        shadowPointMap->Init(sizeof(lightData.pointLights), shaderBox);
-
+        gbuffer->Init(m_context.getWidth(),m_context.getHeight());
+        fxaa->init(m_context.getWidth(), m_context.getHeight());
+        shadowDirMap->Init( shader );
+        shadowSpotMap->SetupShader( shader );
+        shadowPointMap->SetupShader( shaderBox );
     }
 
-    void beginFrame(const Camera& camera) override {
+    void beginFrame() override 
+    {
         // Clear previous frame data
         renderCommands.clear();
         instancedCommands.clear();
         lightData = {};
 
         // Update camera matrices
-        viewMatrix = camera.GetViewMatrix();
+        viewMatrix = m_context.getCamera().GetViewMatrix();
 
-        projectionMatrix = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.01f, 100.0f);
+        projectionMatrix = glm::perspective(glm::radians(45.0f), (float)m_context.getWidth() / (float)m_context.getHeight(), 0.01f, 100.0f);
 
         modelMatrix = glm::mat4(1.0f);
     }
@@ -208,16 +219,24 @@ public:
         instancedCommands.push_back(command);
     }
 
-    void setLightData(const LightData& lights) override {
+    void setLightData(const LightData& lights) override 
+    {
+        if (!m_spotShadowsInitialized && !lights.spotLights.empty()) 
+        {
+            shadowSpotMap->Init(lights.spotLights.size());
+            m_spotShadowsInitialized = true;
+        }
+        if (!m_pointShadowsInitialized && !lights.pointLights.empty())
+        {
+            shadowPointMap->Init(lights.pointLights.size());
+            m_pointShadowsInitialized = true;
+        }
+
         lightData = lights;
     }
 
-    void setSkybox(const Skybox& skyboxData) override {
-        skybox = std::make_unique<Skybox>(skyboxData);
-    }
-
-    void endFrame() override {
-
+    void endFrame() override 
+    {
         // Geometry pass
         renderGeometryPass();
 
@@ -234,12 +253,17 @@ public:
         renderPostProcessing();
     }
 
-    void resize(int width, int height) override {
-        screenWidth = width;
-        screenHeight = height;
+    void resize() override 
+    {
+        gbuffer->Resize(m_context.getWidth(), m_context.getHeight()); // wip remove global SRC 
+        fxaa->resize(m_context.getWidth(), m_context.getHeight());
+    }
 
-        gbuffer->Resize(); // wip remove global SRC 
-        fxaa->resize(); // wip
+    void setSkybox(const std::string& path, const std::vector<std::string>& faces) override {
+        // Crea un nuovo oggetto Skybox e lo carica immediatamente.
+        // È l'unico che esiste, quindi non ci saranno problemi di copia/distruzione.
+        skybox = std::make_unique<Skybox>();
+        skybox->load(path.c_str(), faces);
     }
 
 private:
@@ -289,29 +313,29 @@ private:
         }
 
         // Pointlight shadow casting
-        shadowPointMap->BindForWriting(0);
-        glViewport(0, 0, shadowPointMap->s_SIZE, shadowPointMap->s_SIZE);
-
-        glClear(GL_DEPTH_BUFFER_BIT);
-
-        shadowPointMap->shader->use();
-        for (size_t i = 0; i < lightData.pointLights.size(); ++i)
+        if (m_pointShadowsInitialized && !lightData.pointLights.empty())
         {
-            // Set current light index
-            shadowPointMap->shader->setInt("lightIndex", static_cast<int>(i));
+            shadowPointMap->BindForWriting(0);
+            glClear(GL_DEPTH_BUFFER_BIT);
 
-            // Your existing setupUniformShader call
-            shadowMapPoint.setupUniformShader(&lightData.pointLights[i]);
-
-            for (auto [modelMatrix, mesh, castShadows, receiveShadows] : renderCommands)
+            shadowPointMap->shader->use();
+            for (size_t i = 0; i < lightData.pointLights.size(); ++i)
             {
-                if (!castShadows) continue;
+                // Set current light index
+                shadowPointMap->shader->setInt("lightIndex", static_cast<int>(i));
 
-                shadowPointMap->shader->setMat4("model", modelMatrix);
-                mesh->Render(shadowPointMap->shader);
+                // Your existing setupUniformShader call
+                shadowPointMap->setupUniformShader(&lightData.pointLights[i]);
+
+                for (auto [modelMatrix, mesh, castShadows, receiveShadows] : renderCommands)
+                {
+                    if (!castShadows) continue;
+
+                    shadowPointMap->shader->setMat4("model", modelMatrix);
+                    mesh->Render(shadowPointMap->shader);
+                }
             }
         }
-
         glCullFace(GL_BACK);
     }
 
@@ -322,8 +346,8 @@ private:
         for (const auto& cmd : renderCommands) {
             // Set matrices for the mesh's shader
 
-            gbuffer->shaderGeom->setMat4("projection", projection);
-            gbuffer->shaderGeom->setMat4("view", view);
+            gbuffer->shaderGeom->setMat4("projection", this->projectionMatrix);
+            gbuffer->shaderGeom->setMat4("view", this->viewMatrix);
             gbuffer->shaderGeom->setMat4("model", cmd.modelMatrix);
             // BasicMesh handles its own material and texture binding
             cmd.mesh->Render(gbuffer->shaderGeom);
@@ -354,8 +378,11 @@ private:
         shader->setInt("gDepth", 3);
 
         // bind shadow map for point light and uniform
-        shadowPointMap->BindForReading(SHADOW_MAP_CUBE_UNIT);
-        shader->setInt("shadowCubeArray", SHADOW_MAP_CUBE_UNIT);
+        if (m_pointShadowsInitialized) {
+            shadowPointMap->BindForReading(SHADOW_MAP_CUBE_UNIT);
+            shader->setInt("shadowCubeArray", SHADOW_MAP_CUBE_UNIT);
+        }
+        
 
         // bind shadow map for directional light and uniform
         shadowDirMap->BindForReading(SHADOW_MAP_DIR_UNIT);
@@ -368,7 +395,7 @@ private:
         shader->setInt("shadowSpotArray", SHADOW_MAP_SPOT_UNIT);
 
         // setup view position in the scene 
-        shader->setVec3("viewPos", camera.Position);
+        shader->setVec3("viewPos", m_context.getCamera().Position);
 
         //      Set unifrom point lights   //
         shader->setInt("numPointLights", static_cast<int>(lightData.pointLights.size()));
@@ -427,11 +454,11 @@ private:
         {
             std::string idx = "dirLight";
 
-            shader->setVec3(idx + ".position", Sunlight.Position);
-            shader->setVec3(idx + ".direction", Sunlight.Direction);
-            shader->setVec3(idx + ".light.ambient", Sunlight.Ambient);
-            shader->setVec3(idx + ".light.diffuse", Sunlight.Diffuse);
-            shader->setVec3(idx + ".light.specular", Sunlight.Specular);
+            shader->setVec3(idx + ".position", lightData.sunLight.Position); 
+            shader->setVec3(idx + ".direction", lightData.sunLight.Direction); 
+            shader->setVec3(idx + ".light.ambient", lightData.sunLight.Ambient); 
+            shader->setVec3(idx + ".light.diffuse", lightData.sunLight.Diffuse); 
+            shader->setVec3(idx + ".light.specular", lightData.sunLight.Specular); 
 
         }
         gbuffer->Render();
@@ -441,6 +468,7 @@ private:
 
     void renderForwardPass() {
         // switch form deferred randering to forward rendering 
+        glViewport(0, 0, m_context.getWidth(), m_context.getHeight());
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER, gbuffer->fbo);
 
@@ -448,11 +476,14 @@ private:
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fxaa->framebuffer);
 
         // Blit the depth buffer contents
-        glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        glBlitFramebuffer(0, 0, m_context.getWidth(), m_context.getHeight(), 0, 0, m_context.getWidth(), m_context.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
+        glBindFramebuffer(GL_FRAMEBUFFER, fxaa->framebuffer);
+
+        glEnable(GL_DEPTH_TEST);
         // render skybox
         if (skybox) {
-            skybox->Render(viewMatrix, projectionMatrix);
+            skybox->Render(projectionMatrix, viewMatrix);
         }
     }
 
@@ -460,9 +491,6 @@ private:
         fxaa->render();
     }
 
-    void renderFullscreenQuad() {
-        // Render fullscreen quad implementation
-    }
 };
 
 // ============================================================================
@@ -500,14 +528,20 @@ public:
         return components.hasComponent<T>(entity);
     }
 
+    void setSkybox(const std::string& path, const std::vector<std::string>& faces) {
+        if (renderer) {
+            renderer->setSkybox(path, faces);
+        }
+    }
+
     // Scene lifecycle
-    virtual void initialize(int width, int height) {
-        renderer->initialize(width, height);
+    virtual void initialize() {
+        renderer->initialize();
         loadScene(); // Virtual method for derived classes
     }
 
-    void render(const Camera& camera) {
-        renderer->beginFrame(camera);
+    void render() {
+        renderer->beginFrame();
 
         // Collect render commands from entities
         collectRenderCommands();
@@ -518,8 +552,8 @@ public:
         renderer->endFrame();
     }
 
-    void resize(int width, int height) {
-        renderer->resize(width, height);
+    void resize() {
+        renderer->resize();
     }
 
 protected:
@@ -606,7 +640,7 @@ private:
 // ============================================================================
 // CONCRETE SCENE IMPLEMENTATION
 // ============================================================================
-
+/*
 class CarScene : public Scene {
 public:
     CarScene(std::unique_ptr<IRenderer> renderer) : Scene(std::move(renderer)) {}
@@ -710,7 +744,7 @@ protected:
         }
     }
 };
-
+*/
 // ============================================================================
 // USAGE EXAMPLE
 // ============================================================================

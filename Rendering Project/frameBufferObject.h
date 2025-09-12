@@ -17,10 +17,7 @@
 #include "LightStruct.h"
 #include "Shader.h"
 #include "Debugging.h"
-
-// settings
-extern GLuint SCR_WIDTH;
-extern GLuint SCR_HEIGHT;
+#include "WindowContext.h"
 
 
 class ShadowMapFBO
@@ -37,7 +34,7 @@ public:
 	void BindForReading(GLint TextureUnit);
 	void clean();
 
-	unsigned int s_WIDTH{ 0 }, s_HEIGHT{ 0 };
+	unsigned int m_Width{ 0 }, m_Height{ 0 };
 	std::shared_ptr<Shader> shader;
 
 private:
@@ -57,31 +54,35 @@ public:
 	~ShadowMapArrayFBO();
 
 	void resizeWindow(const unsigned int WIDTH, const unsigned int HEIGHT);
-	void Init(unsigned int Size, std::shared_ptr<Shader> inShader);
+	void Init(size_t Size, std::shared_ptr<Shader> inShader);
+	void Init(size_t Size); // to be use in combo with SetupShader to have a fully working object 
+	void SetupShader(std::shared_ptr<Shader> inShader); 
 	void BindLayerForWriting(int layerIndex);
 	void BindForReading(GLint TextureUnit);
 	void clean();
 
-	unsigned int s_WIDTH{ 0 }, s_HEIGHT{ 0 };
+	unsigned int s_Width{ 0 }, s_Height{ 0 };
 
 	std::shared_ptr<Shader> shader;
 private:
 	GLuint fbo{ 0 };
 	GLuint textureArray{ 0 };
-	unsigned int size{ 0 };
+	size_t size{ 0 };
 };
 
 class ShadowMapCubeFBO
 {
 public:
-	ShadowMapCubeFBO() = default;
+	ShadowMapCubeFBO() = delete;
 	ShadowMapCubeFBO& operator=(const ShadowMapCubeFBO&) = delete;
 	ShadowMapCubeFBO(const unsigned int size);
 	~ShadowMapCubeFBO();
 
 	void resizeWindow(const unsigned int WIDTH, const unsigned int HEIGHT);
 	void setupUniformShader(const PointLight* light);
-	void Init(const unsigned int MAX_LIGHTS, std::shared_ptr<Shader> inShader);
+	void Init(size_t MAX_LIGHTS, std::shared_ptr<Shader> inShader);
+	void Init(size_t MAX_LIGHTS); // to be use in combo with SetupShader to have a fully working object 
+	void SetupShader(std::shared_ptr<Shader> inShader);
 	void BindForWriting(int lightIndex);
 	void BindForReading(GLint TextureUnit);
 	void clean();
@@ -126,12 +127,12 @@ private:
 
 class MultisampleFramebuffer {
 public:
-	MultisampleFramebuffer(int sampleCount);
+	MultisampleFramebuffer(int s_Width, int s_Height, int sampleCount);
 	~MultisampleFramebuffer();
 
 	void init();
 	void blit();
-	void resize();
+	void resize(int s_Width, int s_Height);
 	void bind();
 
 private:
@@ -139,6 +140,7 @@ private:
 	GLuint textureColorBufferMultiSampled{ 0 };
 	GLuint rbo{ 0 };
 	int samples;
+	int m_Width, m_Height;
 };
 
 class FXAA {
@@ -146,8 +148,8 @@ public:
 	FXAA() = default;
 	~FXAA();
 
-	void init();
-	void resize();
+	void init(int s_Width,int s_Height);
+	void resize(int s_Width, int s_Height);
 	void bind();
 	void unbind();
 	void render();
@@ -168,6 +170,7 @@ private:
 
 	GLuint colorTexture{ 0 };
 	GLuint depthTexture{ 0 };
+	int m_Width{ 0 }, m_Height{ 0 };
 
 	// Screen quad for post-processing
 	GLuint VAO{ 0 };
@@ -196,11 +199,11 @@ public:
 	GBufferFBO& operator=(const GBufferFBO&) = delete;
 	~GBufferFBO();
 
-	void Init();
+	void Init(int s_Width, int s_Height);
 	void BindForWriting();
 	void UnBind();
 	void BindForReading(GLint TextureUnit);
-	void Resize();
+	void Resize(int s_Width, int s_Height);
 	void Render();
 	void clean();
 
@@ -212,6 +215,7 @@ public:
 private:
 	GLuint gPosition{ 0 }, gNormalShiness{ 0 }, gColorSpec{ 0 };
 	GLuint VAO{ 0 }, VBO{ 0 };
+	int m_Height{ 0 }, m_Width{ 0 };
 	inline const static float quadVertices[20] = {
 		// Positions   // Texture coords
 		-1.0f, -1.0f,  0.0f,  0.0f, 0.0f,  // Bottom-left

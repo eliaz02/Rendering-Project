@@ -12,33 +12,6 @@ GLuint loadTexture(const char* path);
 
 
 
-// settings
-extern GLuint SCR_WIDTH;
-extern GLuint SCR_HEIGHT;
-
-
-// Require for a proper cleanup of the opengl buffer, texture
-extern GBufferFBO gbuffer;
-extern FXAA fxaa;
-//extern MultisampleFramebuffer framebufferMSSA;
-#ifdef shadowdirlight
-extern shadowDirMap shadowMap;
-#endif
-extern ShadowMapCubeFBO shadowMapPoint;
-extern Shader shader;
-extern Shader instanceShader;
-extern Shader shadowMapShader;
-extern Shader shadowMapShaderPoint;
-extern Shader lightingShader;
-extern void cleanup();
-
-extern Shader testingShader;
-
-
-extern DirLight Sunlight;
-
-extern Skybox skybox;
-
 
 // light  
 glm::vec3 lightPos(0.5f, 0.0f, 1.8f);
@@ -52,15 +25,8 @@ extern ShadowMapFBO shadowMap;
 extern Camera camera;
 
 extern bool firstMouse = true;
-extern float yaw = -90.0f;	// yaw   is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-extern float pitch = 0.0f;
-extern float lastX = (float)SCR_WIDTH / 2.0f;
-extern float lastY = (float)SCR_HEIGHT / 2.0f;
-extern float fov = 45.0f;
 
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
+
 
 
 
@@ -226,56 +192,8 @@ MaterialPhong materialValues[] = {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow* window)
-{
 
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        camera.ProcessKeyboard(CTRL_P, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
-        camera.ProcessKeyboard(CTRL_R, deltaTime);
-}
-
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    if (firstMouse)
-    {
-        lastX = GLfloat(xpos);
-        lastY = GLfloat(ypos);
-        firstMouse = false;
-    }
-    GLfloat xoffset = GLfloat(xpos - lastX);
-    GLfloat yoffset = GLfloat(lastY - ypos); // reversed since y-coordinates range from bottom to top
-    lastX = GLfloat(xpos);
-    lastY = GLfloat(ypos);
-    camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
-    SCR_WIDTH = width;
-    SCR_HEIGHT = height;
-    //framebufferMSSA.resize();
-    gbuffer.Resize();
-    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-
-    // WIP do the resieze for every FBO that must have the size of the screen
-
-}
 
 GLuint loadTexture(char const* path)
 {
@@ -345,6 +263,8 @@ GLuint loadCubemap(char const* path, std::vector<std::string> faces)
 
     return textureID;
 }
+
+
 std::vector<std::string> faces = {
             "right.jpg",
             "left.jpg",

@@ -582,6 +582,10 @@ bool BasicMesh::CreatePrimitive(Shape* shape)
         BSpline* curve = dynamic_cast<BSpline*>(shape);
         CreateBSpline(*curve);   // Pass the bezier object
     }
+    else if (shape->Name == "Cube") { // <-- ADDED
+        Cube* cube = dynamic_cast<Cube*>(shape);
+        CreateCube(*cube);   // Pass the cube object
+    }
     else {
         // Handle unknown shape type
         return false;
@@ -1022,6 +1026,129 @@ bool BasicMesh::CreateBSpline(BSpline bspline)
         m_Indices.push_back(nextBaseIdx + 1);
         m_Indices.push_back(baseIdx + 1);
     }
+
+    return true;
+}
+
+bool BasicMesh::CreateCube(Cube cube)
+{
+    ClearBuffer();
+
+    float halfSize = static_cast<float>(cube.size) / 2.0f;
+
+    // Define the 8 vertices of the cube
+    glm::vec3 v0(-halfSize, -halfSize, halfSize);  // Front bottom left
+    glm::vec3 v1(halfSize, -halfSize, halfSize);   // Front bottom right
+    glm::vec3 v2(halfSize, halfSize, halfSize);    // Front top right
+    glm::vec3 v3(-halfSize, halfSize, halfSize);   // Front top left
+    glm::vec3 v4(-halfSize, -halfSize, -halfSize); // Back bottom left
+    glm::vec3 v5(halfSize, -halfSize, -halfSize);  // Back bottom right
+    glm::vec3 v6(halfSize, halfSize, -halfSize);   // Back top right
+    glm::vec3 v7(-halfSize, halfSize, -halfSize);  // Back top left
+
+    // Define texture coordinates
+    glm::vec2 t0(0.0f, 0.0f); // Bottom-left
+    glm::vec2 t1(1.0f, 0.0f); // Bottom-right
+    glm::vec2 t2(1.0f, 1.0f); // Top-right
+    glm::vec2 t3(0.0f, 1.0f); // Top-left
+
+    // Each face has 4 vertices
+    m_Positions = {
+        // Front face
+        v0, v1, v2, v3,
+        // Back face
+        v5, v4, v7, v6,
+        // Left face
+        v4, v0, v3, v7,
+        // Right face
+        v1, v5, v6, v2,
+        // Top face
+        v3, v2, v6, v7,
+        // Bottom face
+        v4, v5, v1, v0
+    };
+
+    m_TexCoords = {
+        // Front face
+        t0, t1, t2, t3,
+        // Back face
+        t0, t1, t2, t3,
+        // Left face
+        t0, t1, t2, t3,
+        // Right face
+        t0, t1, t2, t3,
+        // Top face
+        t0, t1, t2, t3,
+        // Bottom face
+        t0, t1, t2, t3
+    };
+
+    // Define normals for each face
+    glm::vec3 frontNormal(0.0f, 0.0f, 1.0f);
+    glm::vec3 backNormal(0.0f, 0.0f, -1.0f);
+    glm::vec3 leftNormal(-1.0f, 0.0f, 0.0f);
+    glm::vec3 rightNormal(1.0f, 0.0f, 0.0f);
+    glm::vec3 topNormal(0.0f, 1.0f, 0.0f);
+    glm::vec3 bottomNormal(0.0f, -1.0f, 0.0f);
+
+    m_Normals = {
+        // Front face
+        frontNormal, frontNormal, frontNormal, frontNormal,
+        // Back face
+        backNormal, backNormal, backNormal, backNormal,
+        // Left face
+        leftNormal, leftNormal, leftNormal, leftNormal,
+        // Right face
+        rightNormal, rightNormal, rightNormal, rightNormal,
+        // Top face
+        topNormal, topNormal, topNormal, topNormal,
+        // Bottom face
+        bottomNormal, bottomNormal, bottomNormal, bottomNormal
+    };
+
+    // Define tangents for each face
+    glm::vec3 frontTangent(1.0f, 0.0f, 0.0f);
+    glm::vec3 backTangent(-1.0f, 0.0f, 0.0f);
+    glm::vec3 leftTangent(0.0f, 0.0f, -1.0f);
+    glm::vec3 rightTangent(0.0f, 0.0f, 1.0f);
+    glm::vec3 topTangent(1.0f, 0.0f, 0.0f);
+    glm::vec3 bottomTangent(1.0f, 0.0f, 0.0f);
+
+    m_Tangents = {
+        // Front face
+        frontTangent, frontTangent, frontTangent, frontTangent,
+        // Back face
+        backTangent, backTangent, backTangent, backTangent,
+        // Left face
+        leftTangent, leftTangent, leftTangent, leftTangent,
+        // Right face
+        rightTangent, rightTangent, rightTangent, rightTangent,
+        // Top face
+        topTangent, topTangent, topTangent, topTangent,
+        // Bottom face
+        bottomTangent, bottomTangent, bottomTangent, bottomTangent
+    };
+
+    // Calculate bitangents by crossing normals and tangents
+    for (size_t i = 0; i < m_Normals.size(); ++i) {
+        m_Bitangents.push_back(glm::cross(m_Normals[i], m_Tangents[i]));
+    }
+
+    // Define indices for the 12 triangles of the cube
+    m_Indices = {
+        // Front face
+        0, 1, 2,  0, 2, 3,
+        // Back face
+        4, 5, 6,  4, 6, 7,
+        // Left face
+        8, 9, 10, 8, 10, 11,
+        // Right face
+        12, 13, 14, 12, 14, 15,
+        // Top face
+        16, 17, 18, 16, 18, 19,
+        // Bottom face
+        20, 21, 22, 20, 22, 23
+    };
 
     return true;
 }

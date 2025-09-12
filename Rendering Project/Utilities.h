@@ -30,56 +30,17 @@
 
 
 #include "Debugging.h"
-
-#include "Camera.h" // Needed for the 'camera' extern declaration
-#include "frameBufferObject.h"
 #include <iostream>
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
-// 3. Declare all your global variables with 'extern' and NO initializer
-extern GLuint SCR_WIDTH;
-extern GLuint SCR_HEIGHT;
 
-
-// Require for a proper cleanup of the opengl buffer, texture
-//extern MultisampleFramebuffer framebufferMSSA;
-extern GBufferFBO gbuffer;
-extern FXAA fxaa;
-#ifdef shadowdirlight
-extern shadowDirMap shadowMap;
-#endif
-extern ShadowMapCubeFBO shadowMapPoint;
-extern Shader shader;
-extern Shader instanceShader;
-
-extern Shader lightingShader;
-
-
-
-
-extern DirLight Sunlight;
-
-extern Skybox skybox;
-
-extern void cleanup();
-
-extern glm::vec3 lightPos;
-
-extern Camera camera;
-
-extern bool firstMouse;
-extern float lastX;
-extern float lastY;
-
-extern float deltaTime;
-extern float lastFrame;
 
 // 4. Declare your functions (function prototypes)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
-void cleanup();
+
 GLuint loadTexture(const char* path);
 GLuint loadCubemap(const char* path, const std::vector<std::string> faces);
 std::string GetFullPath(const std::string& Dir, const struct aiString& Path); // Forward declare aiString
@@ -115,11 +76,10 @@ struct Vertex0 {
 
 };
 
-extern float cubenDC[288];
-
-extern GLuint indicesCubeNDC[];
-
 extern std::vector<std::string> faces;
+extern GLuint indicesCubeNDC[];
+extern float cubenDC[] ;
+
 
 
 #endif

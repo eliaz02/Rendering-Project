@@ -46,6 +46,17 @@ public:
         std::string Name;
     };
 
+    class Cube : public Shape
+    {
+    public:
+        Cube(double size) :
+            Shape("Cube"),
+            size{ size }
+        {
+        }
+        double size;
+    };
+
     class Square : public Shape
     {
     public:
@@ -125,6 +136,7 @@ private:
     void LoadNormalTexture(const std::string& Dir, const aiMaterial* pMaterial, int index);
     void LoadAlphaTexture(const std::string& Dir, const aiMaterial* pMaterial, int MaterialIndex);
     bool CreateSquare(Square square);
+    bool CreateCube(Cube cube);
     bool CreateCircle(Circle cicle);
     bool CreateBezier(Bezier bezier);
     bool CreateBSpline(BSpline bspline);

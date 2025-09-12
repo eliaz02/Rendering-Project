@@ -24,15 +24,17 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Utilities.cpp" />
+    <ClCompile Include="WindowContext.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="WindowContext.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Debugging.h" />
+    <ClInclude Include="DemoScene.h" />
     <ClInclude Include="EntityComponentSysetm.h" />
     <ClInclude Include="frameBufferObject.h" />
     <ClInclude Include="LightStruct.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="renderable_object.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="stb_image.h" />

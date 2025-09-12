@@ -135,98 +135,18 @@ public:
 };
 
 
-// use for skybox
 class Texture_cube {
 public:
     GLuint ID;
     GLuint slot;
-    const static GLenum type{ GL_TEXTURE_CUBE_MAP }; // Fixed: should be cube map type
-    std::string typeStr;
 
-    // Empty constructor - just initializes default values
-    Texture_cube()
-        : ID(0), slot(0), vbo(0), vao(0)
-    {
-    }
+    Texture_cube() : ID(0), slot(0) {}
+    ~Texture_cube() { Delete(); }
 
-    // Original constructor with full initialization
-    Texture_cube(char const* path, std::vector<std::string> faces, GLint texSlot = 0)
-        : ID(0), slot(0), vbo(0), vao(0)
-    {
-        load(path, faces, texSlot);
-    }
+    // The load function now ONLY loads the texture data
+    void load(const char* path, const std::vector<std::string>& faces, GLint texSlot = 0) {
+        if (faces.size() != 6) { /* error handling */ return; }
 
-    // Disable copy constructor and assignment to prevent double deletion
-    Texture_cube(const Texture_cube&) = delete;
-    Texture_cube& operator=(const Texture_cube&) = delete;
-
-    // Load function to initialize everything
-    void load(char const* path, std::vector<std::string> faces, GLint texSlot = 0)
-    {
-        // Validate input
-        if (faces.size() != 6) {
-            std::cout << "Error: Cubemap requires exactly 6 faces, got " << faces.size() << std::endl;
-            return;
-        }
-
-        // Define skybox vertices (cube coordinates)
-        static const std::vector<glm::vec3> skyboxVertices = {
-            // positions          
-            {-1.0f,  1.0f, -1.0f},
-            {-1.0f, -1.0f, -1.0f},
-            { 1.0f, -1.0f, -1.0f},
-            { 1.0f, -1.0f, -1.0f},
-            { 1.0f,  1.0f, -1.0f},
-            {-1.0f,  1.0f, -1.0f},
-
-            {-1.0f, -1.0f,  1.0f},
-            {-1.0f, -1.0f, -1.0f},
-            {-1.0f,  1.0f, -1.0f},
-            {-1.0f,  1.0f, -1.0f},
-            {-1.0f,  1.0f,  1.0f},
-            {-1.0f, -1.0f,  1.0f},
-
-            { 1.0f, -1.0f, -1.0f},
-            { 1.0f, -1.0f,  1.0f},
-            { 1.0f,  1.0f,  1.0f},
-            { 1.0f,  1.0f,  1.0f},
-            { 1.0f,  1.0f, -1.0f},
-            { 1.0f, -1.0f, -1.0f},
-
-            {-1.0f, -1.0f,  1.0f},
-            {-1.0f,  1.0f,  1.0f},
-            { 1.0f,  1.0f,  1.0f},
-            { 1.0f,  1.0f,  1.0f},
-            { 1.0f, -1.0f,  1.0f},
-            {-1.0f, -1.0f,  1.0f},
-
-            {-1.0f,  1.0f, -1.0f},
-            { 1.0f,  1.0f, -1.0f},
-            { 1.0f,  1.0f,  1.0f},
-            { 1.0f,  1.0f,  1.0f},
-            {-1.0f,  1.0f,  1.0f},
-            {-1.0f,  1.0f, -1.0f},
-
-            {-1.0f, -1.0f, -1.0f},
-            {-1.0f, -1.0f,  1.0f},
-            { 1.0f, -1.0f, -1.0f},
-            { 1.0f, -1.0f, -1.0f},
-            {-1.0f, -1.0f,  1.0f},
-            { 1.0f, -1.0f,  1.0f}
-        };
-
-        // VBO for the cube 
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, skyboxVertices.size() * sizeof(glm::vec3), skyboxVertices.data(), GL_STATIC_DRAW);
-
-        // VAO for the cube 
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-        // Fixed: removed unnecessary scope resolution
         slot = texSlot;
         glGenTextures(1, &ID);
         glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
@@ -259,87 +179,34 @@ public:
                 std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
             stbi_image_free(data);
         }
+
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-        // Unbind
-        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0); // Unbind when done
+    }
+
+    void Bind() {
+        glActiveTexture(GL_TEXTURE0 + slot);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
+    }
+
+    void Unbind() {
+        glActiveTexture(GL_TEXTURE0 + slot);
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
 
-    ~Texture_cube()
-    {
-        Delete(); // Fixed: removed unnecessary scope resolution
-    }
-
-    void Draw(Shader* shader) {
-        // set control of the z-buffer for skybox
-        glDepthFunc(GL_LEQUAL);
-        // bind shaders 
-        shader->use();
-        // bind VAO
-        glBindVertexArray(vao);
-        // bind texture
-        Bind();
-        // draw the skybox
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //unbind everything 
-        glBindVertexArray(0);
-        glDepthFunc(GL_LESS);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    }
-
-    // Assigns a texture unit to a texture
-    void texUnit(Shader* shader, const char* uniformName, GLuint unit)
-    {
-        // Shader needs to be activated before changing the value of a uniform
-        shader->use();
-        // Sets the value of the uniform
-        shader->setInt(uniformName, unit);
-        GL_CHECK();
-    }
-
-    // Binds a texture
-    void Bind()
-    {
-        glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, ID); // Fixed: use correct type
-        GL_CHECK();
-    }
-
-    // Unbinds a texture
-    void Unbind()
-    {
-        glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0); // Fixed: use correct type
-        GL_CHECK();
-    }
-
-    // Deletes a texture
-    void Delete()
-    {
+    void Delete() {
         if (ID != 0) {
             glDeleteTextures(1, &ID);
             ID = 0;
         }
-        if (vbo != 0) {
-            glDeleteBuffers(1, &vbo);
-            vbo = 0;
-        }
-        if (vao != 0) {
-            glDeleteVertexArrays(1, &vao);
-            vao = 0;
-        }
     }
-
-private:
-    GLuint vbo;
-    GLuint vao;
 };
+
 /// <summary>
 /// PBRMaterial is the strusct for physical base rendering but i don't think i'll implement this in my project 
 /// </summary>
