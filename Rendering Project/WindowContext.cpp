@@ -134,6 +134,8 @@ float WindowContext::getDeltaTime()
     return m_deltaTime;
 }
 
+float WindowContext::getTotalTime() const { return  static_cast<float>(glfwGetTime()); }
+
 void WindowContext::linkScene(Scene* scene)
 {
     m_linkedScene = scene;

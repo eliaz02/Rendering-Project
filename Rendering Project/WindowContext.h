@@ -29,6 +29,7 @@ public:
     // Accesso ai dati
     Camera& getCamera();
     float getDeltaTime();
+    float getTotalTime() const ;
     int getHeight() const ;
     int getWidth() const ;
 

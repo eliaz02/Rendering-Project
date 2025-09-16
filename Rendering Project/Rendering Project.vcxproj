@@ -27,6 +27,7 @@
     <ClCompile Include="WindowContext.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="WindowContext.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Debugging.h" />
