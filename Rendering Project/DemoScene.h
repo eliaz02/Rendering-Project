@@ -177,6 +177,48 @@ private:
             addComponent(movingCubeEntity, std::move(cubeAniCOmponent));
         }
 
+
+        // --- Instanced cube ---
+        {
+            std::vector<glm::mat4> instanceMatrices;
+            const int numberOfInstances = 50;
+            std::random_device rd;
+            std::mt19937 generator(rd());
+
+            std::uniform_real_distribution<float> positionXZ_dist(-25.0f, 25.0f);
+            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
+            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
+            
+            for (int i = 0; i < numberOfInstances; ++i) {
+                // --- Generate random transformation values ---
+                glm::vec3 position(
+                    positionXZ_dist(generator),
+                    positionY_dist(generator),
+                    positionXZ_dist(generator)
+                );
+                float angle = rotation_dist(generator);
+                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f)); 
+
+                float scale = scale_dist(generator);
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, position);
+                model = glm::rotate(model, angle, axis);
+                model = glm::scale(model, glm::vec3(scale));
+                instanceMatrices.push_back(model);
+            }
+            EntityID instanceCubes = createEntity();
+
+            auto cubePrimitive = std::make_unique<BasicMesh::Cube>((double)5);
+            auto CubeMesh = std::make_shared<BasicMesh>();
+            CubeMesh->CreatePrimitive(cubePrimitive.get()); 
+            CubeMesh->SetupInstancedArrays(instanceMatrices);
+            InstancedRenderCommand cubeRenderer;
+            cubeRenderer.mesh = std::move (CubeMesh);
+            cubeRenderer.instances = instanceMatrices;
+            addComponent(instanceCubes, cubeRenderer);
+
+        }
     }
 
     void createSkybox() {

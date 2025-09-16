@@ -190,6 +190,11 @@
         bool receiveShadows = true;
     };
 
+    struct InstancedMeshRenderer {
+        std::shared_ptr<BasicMesh> mesh;
+        std::vector<glm::mat4> instanceMatrices;
+    };
+
     using PointLightComponent = PointLight;
     using SpotLightComponent = SpotLight;
     using DirectionalLightComponent = DirLight;
@@ -261,6 +266,13 @@
 
         WindowContext& m_context;
     
+        enum GbufferBind
+        {
+            Position = 0,
+            NormalShininess = 1,
+            ColorSpec = 2,
+            Depth = 3
+        };
     public:
         DeferredRenderer(WindowContext& conetext) :
             viewMatrix{ glm::mat4(0.f) },
@@ -353,7 +365,7 @@
 
         void resize() override 
         {
-            gbuffer->Resize(m_context.getWidth(), m_context.getHeight()); // wip remove global SRC 
+            gbuffer->Resize(m_context.getWidth(), m_context.getHeight()); 
             fxaa->resize(m_context.getWidth(), m_context.getHeight());
         }
 
@@ -457,14 +469,13 @@
             }
 
             // Render instanced objects
-            //for (const auto& cmd : instancedCommands) { //// wip totaly differnt handeling 
-            //    // Set instance matrices
-            //    cmd.mesh->setInstanceMatrices(cmd.instances);
-            //    cmd.mesh->renderInstanced(cmd.instances.size());
-            //}
+            for (const auto& cmd : instancedCommands) { //// wip 
+               // Set instance matrices
+               cmd.mesh->SetupInstancedArrays(cmd.instances);
+               cmd.mesh->RenderInstanced(gbuffer->shaderInstanced,cmd.instances.size());
+            }
 
-            gbuffer->UnBind(); // wip implement un bind 
-        }
+            gbuffer->UnBind();         }
 
         void renderLightingPass()
         {
@@ -475,10 +486,10 @@
             // bind GBuffer for reading and uniform 
             gbuffer->BindForReading(0);
             // wip realy bad magic number
-            shader->setInt("gPosition", 0);
-            shader->setInt("gNormalShininess", 1);
-            shader->setInt("gColorSpec", 2);
-            shader->setInt("gDepth", 3);
+            shader->setInt("gPosition", GbufferBind::Position);
+            shader->setInt("gNormalShininess", GbufferBind::NormalShininess);
+            shader->setInt("gColorSpec", GbufferBind::ColorSpec);
+            shader->setInt("gDepth", GbufferBind::Depth);
 
             // bind shadow map for point light and uniform
             if (m_pointShadowsInitialized) {
@@ -512,10 +523,9 @@
                 shader->setVec3(idx + ".light.diffuse", light.Diffuse);
                 shader->setVec3(idx + ".light.specular", light.Specular);
 
-                // wip cange this magic number attenuation terms per light
-                shader->setFloat(idx + ".constant", 1.0f);
-                shader->setFloat(idx + ".linear", 0.09f);
-                shader->setFloat(idx + ".quadratic", 0.032f);
+                shader->setFloat(idx + ".constant", light.constant);
+                shader->setFloat(idx + ".linear", light.linear);
+                shader->setFloat(idx + ".quadratic", light.quadratic);
 
                 shader->setFloat(idx + ".far_plane", light.far_plane);
                 shader->setInt(idx + ".shadowID", static_cast<int>(i));
@@ -704,6 +714,20 @@
                     }
 
                     renderer->submitRenderCommand(cmd);
+                }
+            }
+
+            ComponentArray<InstancedMeshRenderer>* instancedArray = static_cast<ComponentArray<InstancedMeshRenderer>*>( components.getComponentArray<InstancedMeshRenderer>());
+
+            if (instancedArray) {
+                // We can iterate directly over all instanced components
+                for (auto& instancedRenderer : instancedArray->getComponentVector()) {
+                    if (instancedRenderer.mesh && !instancedRenderer.instanceMatrices.empty()) {
+                        InstancedRenderCommand cmd;
+                        cmd.mesh = instancedRenderer.mesh;
+                        cmd.instances = instancedRenderer.instanceMatrices;
+                        renderer->submitInstancedRenderCommand(cmd);
+                    }
                 }
             }
         }

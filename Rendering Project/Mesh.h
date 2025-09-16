@@ -35,8 +35,8 @@ public:
     void SetupInstancedArrays(const std::vector<glm::mat4>& instanceMatrices);
     void Render(const std::shared_ptr<Shader> shader);
     void Render(const Shader& shader);
-    void RenderInstanced(const Shader& shader, unsigned int instanceCount = 0);
-    void RenderInstanced(const std::shared_ptr<Shader> shader, unsigned int instanceCount = 0);
+    void RenderInstanced( Shader& shader, unsigned int instanceCount = 0);
+    void RenderInstanced( std::shared_ptr<Shader> shader, unsigned int instanceCount = 0);
 
     class Shape
     {
@@ -177,6 +177,8 @@ private:
         BITANGENT_VB = 5,
         NUM_BUFFERS = 6
     };
+
+    const GLuint INSTANCE_MATRIX_ATTRIB_LOCATION = 3;
 
     struct BasicMeshEntry {
         BasicMeshEntry()

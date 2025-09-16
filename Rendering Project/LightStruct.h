@@ -48,6 +48,9 @@ struct PointLight
     float near_plane;
     float far_plane;
     glm::mat4 Projection;
+    float constant{ 1.0f };
+    float linear{ 0.09f };
+    float quadratic{ 0.032f };
 
 private:
 

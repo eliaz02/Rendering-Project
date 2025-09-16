@@ -449,22 +449,35 @@ void BasicMesh::SetupInstancedArrays(const std::vector<glm::mat4>& instanceMatri
     glBindBuffer(GL_ARRAY_BUFFER, m_InstanceBuffer);
     glBufferData(GL_ARRAY_BUFFER, instanceMatrices.size() * sizeof(glm::mat4), instanceMatrices.data(), GL_STATIC_DRAW);
 
-    // Set up vertex attributes for each column of the mat4
     GLsizei vec4Size = sizeof(glm::vec4);
-    for (int i = 0; i < 4; ++i) {
-        GLuint location = NUM_BUFFERS - 1 + i; // Use attribute locations 5-8
-        glEnableVertexAttribArray(location);
-        glVertexAttribPointer(location, NUM_BUFFERS - 2, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(uintptr_t)(i * vec4Size));
-        glVertexAttribDivisor(location, 1); // Update once per instance
-    }
 
-    glBindVertexArray(0);
-    m_InstanceMatricesSize = static_cast<unsigned int>(instanceMatrices.size()); // Optional: Store if needed later
+    // Enable the vertex attributes
+    glEnableVertexAttribArray(INSTANCE_MATRIX_ATTRIB_LOCATION);
+    glEnableVertexAttribArray(INSTANCE_MATRIX_ATTRIB_LOCATION + 1);
+    glEnableVertexAttribArray(INSTANCE_MATRIX_ATTRIB_LOCATION + 2);
+    glEnableVertexAttribArray(INSTANCE_MATRIX_ATTRIB_LOCATION + 3);
+
+    // Set up the pointers
+    // Location 3
+    glVertexAttribPointer(INSTANCE_MATRIX_ATTRIB_LOCATION, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+    // Location 4
+    glVertexAttribPointer(INSTANCE_MATRIX_ATTRIB_LOCATION + 1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(1 * vec4Size));
+    // Location 5
+    glVertexAttribPointer(INSTANCE_MATRIX_ATTRIB_LOCATION + 2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * vec4Size));
+    // Location 6
+    glVertexAttribPointer(INSTANCE_MATRIX_ATTRIB_LOCATION + 3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * vec4Size));
+
+    // Set the attribute divisor (the magic of instancing)
+    glVertexAttribDivisor(INSTANCE_MATRIX_ATTRIB_LOCATION, 1);
+    glVertexAttribDivisor(INSTANCE_MATRIX_ATTRIB_LOCATION + 1, 1);
+    glVertexAttribDivisor(INSTANCE_MATRIX_ATTRIB_LOCATION + 2, 1);
+    glVertexAttribDivisor(INSTANCE_MATRIX_ATTRIB_LOCATION + 3, 1);
+
 
     GL_CHECK();
 }
 
-void BasicMesh::RenderInstanced(const Shader& shader, unsigned int instanceCount) {
+void BasicMesh::RenderInstanced( Shader& shader, unsigned int instanceCount) {
     if (instanceCount == 0)
         instanceCount = m_InstanceMatricesSize;
 
@@ -538,7 +551,7 @@ void BasicMesh::RenderInstanced(const Shader& shader, unsigned int instanceCount
 }
 
 // Overload for shared_ptr<Shader>
-void BasicMesh::RenderInstanced(const std::shared_ptr<Shader> shader, unsigned int instanceCount) {
+void BasicMesh::RenderInstanced( std::shared_ptr<Shader> shader, unsigned int instanceCount) {
     RenderInstanced(*shader, instanceCount);
 }
 

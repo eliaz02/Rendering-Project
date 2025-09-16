@@ -775,8 +775,10 @@ void GBufferFBO::Init(int s_Width, int s_Height)
 
 	shaderGeom = std::make_shared<Shader>();
 	shaderLighting = std::make_shared<Shader>();
+	shaderInstanced = std::make_shared<Shader>();
 	// create shader object 
 	shaderGeom->load("shader/Geometry_pass.vert", "shader/Geometry_pass.frag");
+	shaderInstanced->load("shader/Geometry_pass_instanced.vert", "shader/Geometry_pass.frag");
 	shaderLighting->load("shader/Lighting_pass_test.vert", "shader/Lighting_pass_test.frag");
 
 }
@@ -957,6 +959,7 @@ void GBufferFBO::clean()
 
 	shaderGeom->clean();
 	shaderLighting->clean();
+	shaderInstanced->clean();
 }
 
 void FXAA::clean() {

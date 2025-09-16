@@ -211,6 +211,7 @@ public:
 	GLuint depthBuffer{ 0 };
 	std::shared_ptr<Shader> shaderGeom;
 	std::shared_ptr<Shader> shaderLighting;
+	std::shared_ptr<Shader> shaderInstanced;
 
 private:
 	GLuint gPosition{ 0 }, gNormalShiness{ 0 }, gColorSpec{ 0 };
