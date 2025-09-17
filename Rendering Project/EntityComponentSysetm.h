@@ -170,7 +170,7 @@
         }
     };
 
-    // Components themselves are pure data structures that describe different aspects of game objects
+    // Components themselves are pure data structures that describe different aspects of objects
     struct Transform {
         glm::mat4 matrix = glm::mat4(1.0f);
         glm::vec3 position = glm::vec3(0.0f);
@@ -468,14 +468,17 @@
                 cmd.mesh->Render(gbuffer->shaderGeom);
             }
 
+            gbuffer->shaderInstanced->use();
+            gbuffer->shaderInstanced->setMat4("projection", this->projectionMatrix);
+            gbuffer->shaderInstanced->setMat4("view", this->viewMatrix);
             // Render instanced objects
-            for (const auto& cmd : instancedCommands) { //// wip 
+            for (const auto& insCmd : instancedCommands) { //// wip 
                // Set instance matrices
-               cmd.mesh->SetupInstancedArrays(cmd.instances);
-               cmd.mesh->RenderInstanced(gbuffer->shaderInstanced,cmd.instances.size());
+               insCmd.mesh->SetupInstancedArrays(insCmd.instances);
+               insCmd.mesh->RenderInstanced(gbuffer->shaderInstanced, insCmd.instances.size());
             }
-
-            gbuffer->UnBind();         }
+            gbuffer->UnBind();        
+        }
 
         void renderLightingPass()
         {

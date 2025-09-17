@@ -171,22 +171,22 @@ private:
             std::vector<float> timestamp = {
                 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0, 1.0
             };
-            AnimationComponent cubeAniCOmponent;
+            AnimationComponent cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
-            cubeAniCOmponent.animation= std::move(movment);
-            addComponent(movingCubeEntity, std::move(cubeAniCOmponent));
+            cubeAniComponent.animation= std::move(movment);
+            addComponent(movingCubeEntity, std::move(cubeAniComponent));
         }
 
 
         // --- Instanced cube ---
         {
             std::vector<glm::mat4> instanceMatrices;
-            const int numberOfInstances = 50;
+            const int numberOfInstances = 100;
             std::random_device rd;
             std::mt19937 generator(rd());
 
-            std::uniform_real_distribution<float> positionXZ_dist(-25.0f, 25.0f);
-            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> positionXZ_dist(-80.0f, 80.0f);
+            std::uniform_real_distribution<float> positionY_dist(0.1f, 80.0f);
             std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
             std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
             
@@ -209,15 +209,14 @@ private:
             }
             EntityID instanceCubes = createEntity();
 
-            auto cubePrimitive = std::make_unique<BasicMesh::Cube>((double)5);
-            auto CubeMesh = std::make_shared<BasicMesh>();
-            CubeMesh->CreatePrimitive(cubePrimitive.get()); 
-            CubeMesh->SetupInstancedArrays(instanceMatrices);
-            InstancedRenderCommand cubeRenderer;
-            cubeRenderer.mesh = std::move (CubeMesh);
-            cubeRenderer.instances = instanceMatrices;
-            addComponent(instanceCubes, cubeRenderer);
-
+            auto cubePrimitive = std::make_unique<BasicMesh::Cube>((double)1);
+            auto cubeMesh = std::make_shared<BasicMesh>();
+            cubeMesh->CreatePrimitive(cubePrimitive.get()); 
+            cubeMesh->SetupInstancedArrays(instanceMatrices);
+            InstancedMeshRenderer instancedCubeRenderer; 
+            instancedCubeRenderer.mesh = cubeMesh;
+            instancedCubeRenderer.instanceMatrices = instanceMatrices;
+            addComponent(instanceCubes, std::move(instancedCubeRenderer));
         }
     }
 

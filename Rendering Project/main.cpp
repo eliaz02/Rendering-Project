@@ -1,5 +1,5 @@
 
-#include <glad/gl.h>       // Includi prima di qualsiasi altro file OpenGL
+#include <glad/gl.h> 
 #define GLFW_INCLUDE_NONE    // Evita che GLFW includa automaticamente gl.h
 #include <GLFW/glfw3.h>
 
