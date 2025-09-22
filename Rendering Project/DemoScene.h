@@ -131,7 +131,9 @@ private:
             EntityID terrainEntity = createEntity();
 
             Transform terrainTransform;
-           // terrainTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -2.f, 0.f)) *
+            terrainTransform.rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+            terrainTransform.position = glm::vec3(0.f, -0.2, 0.f);
+                glm::translate(glm::mat4(1.f), glm::vec3(0.f, -2.f, 0.f)) *
                 glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
             addComponent(terrainEntity, terrainTransform);
 

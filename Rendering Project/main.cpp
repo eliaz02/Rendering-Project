@@ -42,7 +42,7 @@ int main()
         auto renderer = std::make_unique<DeferredRenderer>(context);
 
         // 2. Create the scene
-        auto scene = std::make_unique<ExameScene>(std::move(renderer));
+        auto scene = std::make_unique<MyDemoScene>(std::move(renderer));
 
         // 3. Initialize the scene  
         scene->initialize();  
