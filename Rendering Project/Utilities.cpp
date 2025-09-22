@@ -3,9 +3,6 @@
 #include "Utilities.h"
 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void processInput(GLFWwindow* window);
 
 
 GLuint loadTexture(const char* path);
@@ -112,6 +109,24 @@ void printInstanceMatrices(std::vector<glm::mat4>* instanceMatrix) {
     }
 }
 
+
+void printMat4(const glm::mat4& matrix, const std::string& name ) {
+    std::cout << "\n" << name << ":\n";
+    std::cout << "--------------------------------------------------------\n";
+
+    for (int i = 0; i < 4; ++i) {
+        std::cout << "|";
+        for (int j = 0; j < 4; ++j) {
+            std::cout << std::setw(11) << std::fixed << std::setprecision(6)
+                << matrix[j][i] << " |"; // Note: GLM uses column-major order
+        }
+        std::cout << "\n";
+        if (i < 3) {
+            std::cout << "                                                        \n";
+        }
+    }
+    std::cout << "--------------------------------------------------------\n";
+}
 
 
 std::string GetFullPath(const std::string& Dir, const aiString& Path)

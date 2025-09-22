@@ -26,7 +26,7 @@ private:
     void createLights() {
         // --- Create Sun Light ---
         EntityID sun = createEntity();
-        DirectionalLightComponent sunLight = {
+        DirLight sunLight = {
             glm::vec3(0.0f, -1.0f, -1.0f), glm::vec3(0.0f, 10.f, 0.0f),
             glm::vec3(0.5f), glm::vec3(0.5f), glm::vec3(0.3f),
             0.1f, 100.f
@@ -56,14 +56,14 @@ private:
             glm::vec3 specular = glm::vec3(1.0f);
 
             // Add the light component to the entity
-            PointLightComponent pointLight(position, ambient, diffuse, specular, near, far);
+            PointLight pointLight(position, ambient, diffuse, specular, near, far);
             addComponent(lightEntity, pointLight);
 
             // Add components to make the light visible as a small cube
             Transform transform;
             transform.position = position;
             transform.scale = glm::vec3(0.2f);
-            transform.matrix = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), transform.scale);
+           // transform.matrix = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), transform.scale);
             addComponent(lightEntity, transform);
 
             MeshRenderer Renderer;
@@ -91,7 +91,7 @@ private:
             glm::vec3 dir = glm::normalize(glm::vec3(0.f, -1.f, 0.f));
 
             // Add the spotlight component to the entity
-            SpotLightComponent spotLight(
+            SpotLight spotLight(
                 pos, dir,
                 colors[i] * 0.1f, colors[i], colors[i] * 0.5f,
                 near_plane, far_plane, cut, attenuation
@@ -106,7 +106,7 @@ private:
             EntityID curveEntity = createEntity();
 
             Transform curveTransform;
-            curveTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));
+           // curveTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));
             addComponent(curveEntity, curveTransform);
 
             MeshRenderer curveRenderer;
@@ -131,7 +131,7 @@ private:
             EntityID terrainEntity = createEntity();
 
             Transform terrainTransform;
-            terrainTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -2.f, 0.f)) *
+           // terrainTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -2.f, 0.f)) *
                 glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
             addComponent(terrainEntity, terrainTransform);
 
@@ -157,7 +157,7 @@ private:
             cubeRenderer.mesh = CubeMesh;
             addComponent(movingCubeEntity, cubeRenderer);
             Transform movingCubTransform;
-            movingCubTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));;
+           // movingCubTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));;
             addComponent(movingCubeEntity, movingCubTransform);
 
             std::vector<glm::vec3> curvePoints = {
@@ -171,7 +171,7 @@ private:
             std::vector<float> timestamp = {
                 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0, 1.0
             };
-            AnimationComponent cubeAniComponent;
+            Animation cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
             cubeAniComponent.animation= std::move(movment);
             addComponent(movingCubeEntity, std::move(cubeAniComponent));

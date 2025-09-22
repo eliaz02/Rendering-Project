@@ -36,11 +36,6 @@
 
 
 
-// 4. Declare your functions (function prototypes)
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void processInput(GLFWwindow* window);
-
 GLuint loadTexture(const char* path);
 GLuint loadCubemap(const char* path, const std::vector<std::string> faces);
 std::string GetFullPath(const std::string& Dir, const struct aiString& Path); // Forward declare aiString
@@ -54,6 +49,7 @@ void inline printMat4(const glm::mat4& mat) {
         std::cout << "]\n";
     }
 }
+void printMat4(const glm::mat4& matrix, const std::string& name = "Matrix");
 
 struct Vertex {
     // position

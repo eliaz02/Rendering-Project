@@ -4,12 +4,13 @@
 #include "Utilities.h"
 #include <ctime>
 #include <cstdlib>
+#include <random>
 
 
 // A concrete implementation of a simple scene
-class MyDemoScene : public Scene {
+class ExameScene : public Scene {
 public:
-    MyDemoScene(std::unique_ptr<IRenderer> renderer) : Scene(std::move(renderer)) {}
+    ExameScene(std::unique_ptr<IRenderer> renderer) : Scene(std::move(renderer)) {}
 
 protected:
     // All scene setup, previously in Init(), now happens here.
@@ -26,7 +27,7 @@ private:
     void createLights() {
         // --- Create Sun Light ---
         EntityID sun = createEntity();
-        DirectionalLightComponent sunLight = {
+        DirLight sunLight = {
             glm::vec3(0.0f, -1.0f, -1.0f), glm::vec3(0.0f, 10.f, 0.0f),
             glm::vec3(0.5f), glm::vec3(0.5f), glm::vec3(0.3f),
             0.1f, 100.f
@@ -56,14 +57,14 @@ private:
             glm::vec3 specular = glm::vec3(1.0f);
 
             // Add the light component to the entity
-            PointLightComponent pointLight(position, ambient, diffuse, specular, near, far);
+            PointLight pointLight(position, ambient, diffuse, specular, near, far);
             addComponent(lightEntity, pointLight);
 
             // Add components to make the light visible as a small cube
             Transform transform;
             transform.position = position;
             transform.scale = glm::vec3(0.2f);
-            transform.matrix = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), transform.scale);
+ 
             addComponent(lightEntity, transform);
 
             MeshRenderer Renderer;
@@ -91,7 +92,7 @@ private:
             glm::vec3 dir = glm::normalize(glm::vec3(0.f, -1.f, 0.f));
 
             // Add the spotlight component to the entity
-            SpotLightComponent spotLight(
+            SpotLight spotLight(
                 pos, dir,
                 colors[i] * 0.1f, colors[i], colors[i] * 0.5f,
                 near_plane, far_plane, cut, attenuation
@@ -103,10 +104,10 @@ private:
     void createWorldObjects() {
         // --- Create Curved pathway ---
         {
-            EntityID curveEntity = createEntity(); 
+            EntityID curveEntity = createEntity();
 
             Transform curveTransform;
-            curveTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));
+            curveTransform.position = glm::vec3(-50.f, -1.99f, 0.f);
             addComponent(curveEntity, curveTransform);
 
             MeshRenderer curveRenderer;
@@ -128,12 +129,13 @@ private:
 
         // --- Create Terrain ---
         {
-            EntityID terrainEntity = createEntity();
+            EntityID terrainEntity = createEntity(); 
 
             Transform terrainTransform;
-            terrainTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(0.f, -2.f, 0.f)) *
-                glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-            addComponent(terrainEntity, terrainTransform);
+            terrainTransform.position = glm::vec3(0.f, -2.f, 0.f);
+
+            terrainTransform.rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
+           // addComponent(terrainEntity, terrainTransform);
 
             MeshRenderer terrainRenderer;
             auto terrainMesh = std::make_shared<BasicMesh>();
@@ -141,24 +143,31 @@ private:
             terrainMesh->CreatePrimitive(&square);
             terrainMesh->SetTextures("Assets/laminate_floor_03_1k/textures/laminate_floor_03_diff_1k.jpg", "", "Assets/laminate_floor_03_1k/textures/laminate_floor_03_nor_gl_1k.jpg");
             terrainRenderer.mesh = terrainMesh;
-            addComponent(terrainEntity, terrainRenderer);
+           // addComponent(terrainEntity, terrainRenderer);
         }
 
 
-        // --- Moving Cube ---
+        // --- Moving ship ---
         {
-            EntityID movingCubeEntity = createEntity();
+            EntityID movingShipEntity = createEntity();
 
-            auto cubePrimitive = std::make_unique<BasicMesh::Cube>((double)5);
-            auto CubeMesh = std::make_shared<BasicMesh>();
-            CubeMesh->CreatePrimitive(cubePrimitive.get());
+            auto shipMesh = std::make_shared<BasicMesh>();
+            shipMesh->LoadMesh("Assets/peachy_balloon_gift/scene.gltf");
+            MeshRenderer shipRenderer;
+            shipRenderer.mesh = shipMesh;
 
-            MeshRenderer cubeRenderer;
-            cubeRenderer.mesh = CubeMesh;
-            addComponent(movingCubeEntity, cubeRenderer);
-            Transform movingCubTransform;
-            movingCubTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));;
-            addComponent(movingCubeEntity, movingCubTransform);
+            addComponent(movingShipEntity, shipRenderer);
+
+   
+            Transform shipTransform;
+            
+            glm::quat rotationX = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.f, 0.f, 0.f));
+            glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, -1.f, 0.f));
+            glm::quat rotationZ = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, 0.f, 1.f));
+            shipTransform.rotation = (rotationY * rotationX * rotationZ);
+            shipTransform.position = glm::vec3(-50.f,5.f, 0.f);
+            shipTransform.scale = glm::vec3(0.1);
+            addComponent(movingShipEntity, shipTransform);
 
             std::vector<glm::vec3> curvePoints = {
                 glm::vec3{0.0f,0.0f,0.0f}*10.f, glm::vec3{1.5f,0.0f,-1.0f}*10.f,
@@ -169,55 +178,72 @@ private:
                 glm::vec3{2.5f,0.0f,1.5f}*10.f, glm::vec3{0.0f,0.0f,0.0f}*10.f
             };
             std::vector<float> timestamp = {
-                1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0, 1.0
+                5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0, 5.0
             };
-            AnimationComponent cubeAniComponent;
+            Animation shipAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
-            cubeAniComponent.animation = std::move(movment);
-            addComponent(movingCubeEntity, std::move(cubeAniComponent));
+            shipAniComponent.animation = std::move(movment);
+            addComponent(movingShipEntity, std::move(shipAniComponent));
         }
 
 
-        // --- Instanced cube ---
-        {
-            std::vector<glm::mat4> instanceMatrices;
-            const int numberOfInstances = 100;
-            std::random_device rd;
-            std::mt19937 generator(rd());
+        //{
+        //    EntityID BarrelsID = createEntity();
 
-            std::uniform_real_distribution<float> positionXZ_dist(-80.0f, 80.0f);
-            std::uniform_real_distribution<float> positionY_dist(0.1f, 80.0f);
-            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
-            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
+        //    Transform barrelTransform;
+        //    barrelTransform.matrix = glm::rotate( glm::mat4(0.5f) , glm::radians(90.0f),glm::vec3(0.f,0.f,1.f));
+        //    barrelTransform.matrix = glm::rotate(barrelTransform.matrix, glm::radians(90.0f),glm::vec3(1.f,0.f,0.f));
+        //    barrelTransform.matrix = glm::rotate(barrelTransform.matrix, glm::radians(90.0f),glm::vec3(0.f,1.f,0.f));
+        //    addComponent(BarrelsID , barrelTransform);
 
-            for (int i = 0; i < numberOfInstances; ++i) {
-                // --- Generate random transformation values ---
-                glm::vec3 position(
-                    positionXZ_dist(generator),
-                    positionY_dist(generator),
-                    positionXZ_dist(generator)
-                );
-                float angle = rotation_dist(generator);
-                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
+        //    auto barrelMesh = std::make_shared<BasicMesh>();
+        //    barrelMesh->LoadMesh("Assets/peachy_balloon_gift/scene.gltf");
+        //    MeshRenderer barrelRenderer;
+        //    barrelRenderer.mesh = barrelMesh;
+      
+        //    addComponent(BarrelsID, barrelRenderer);
+        //}
 
-                float scale = scale_dist(generator);
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, position);
-                model = glm::rotate(model, angle, axis);
-                model = glm::scale(model, glm::vec3(scale));
-                instanceMatrices.push_back(model);
-            }
-            EntityID instanceCubes = createEntity();
+        // --- Instanced barrel ---
+        //{
+        //    std::vector<glm::mat4> instanceMatrices;
+        //    const int numberOfInstances = 100;
+        //    std::random_device rd;
+        //    std::mt19937 generator(rd());
 
-            auto cubePrimitive = std::make_unique<BasicMesh::Cube>((double)1);
-            auto cubeMesh = std::make_shared<BasicMesh>();
-            cubeMesh->CreatePrimitive(cubePrimitive.get());
-            cubeMesh->SetupInstancedArrays(instanceMatrices);
-            InstancedMeshRenderer instancedCubeRenderer;
-            instancedCubeRenderer.mesh = cubeMesh;
-            instancedCubeRenderer.instanceMatrices = instanceMatrices;
-            addComponent(instanceCubes, std::move(instancedCubeRenderer));
-        }
+        //    std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f);
+        //    std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+        //    std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
+        //    std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
+
+        //    for (int i = 0; i < numberOfInstances; ++i) {
+        //        // --- Generate random transformation values ---
+        //        glm::vec3 position(
+        //            positionXZ_dist(generator),
+        //            positionY_dist(generator),
+        //            positionXZ_dist(generator)
+        //        );
+        //        float angle = rotation_dist(generator);
+        //        glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
+
+        //        float scale = scale_dist(generator);
+        //        glm::mat4 model = glm::mat4(1.0f);
+        //        model = glm::translate(model, position);
+        //        model = glm::rotate(model, angle, axis);
+        //        model = glm::scale(model, glm::vec3(scale));
+        //        instanceMatrices.push_back(model);
+        //    }
+        //    EntityID instanceBarrelsID = createEntity();
+
+        //    
+        //    auto barrelMesh = std::make_shared<BasicMesh>();
+        //    barrelMesh->LoadMesh("Assets/lion_head/lion_head_4k.obj");
+        //    barrelMesh->SetupInstancedArrays(instanceMatrices);
+        //    InstancedMeshRenderer instancedCubeRenderer;
+        //    instancedCubeRenderer.mesh = barrelMesh;
+        //    instancedCubeRenderer.instanceMatrices = instanceMatrices;
+        //    addComponent(instanceBarrelsID, std::move(instancedCubeRenderer));
+        //}
     }
 
     void createSkybox() {

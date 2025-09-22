@@ -10,8 +10,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <atomic>
+#include "Component.h"
 
-struct PointLight
+struct PointLight: public Component 
 {
     PointLight() :
         Pos{ glm::vec3(0.f) },
@@ -56,13 +57,12 @@ private:
 
 };
 
-
 // struct contain all the for the implemnentation of a directional light and its shadow (i'll use it for the sun light)
 // the logic is quite standard use lookAt function to compute the view matrix and an othogonal for the projection matrix 
 // the view matrix always look at the position (that is suppose to be at the height of the terrein), 
 // the actual camera position will be computed from the position, direction and height 
 // in such a way that the projection will be parallel to the direction of the light 
-struct DirLight
+struct DirLight : public Component 
 {
     DirLight() :
         Direction{ glm::vec3(0.f) },
@@ -147,11 +147,9 @@ private:
     }
 };
 
-
-
 // this struct contain all that is needed for the costruction of a spotlight and its shadow map 
 // (with the exption of the Frame Buffer Object ) that ha its own calls and is shared with the dirLght struct.
-struct SpotLight
+struct SpotLight : public Component 
 {
     SpotLight(glm::vec3 pos, glm::vec3 dir, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float near, float far, glm::vec2 cut, glm::vec3 lightDecreasingConstant) :
         Pos{ pos },
@@ -202,6 +200,7 @@ struct SpotLight
     glm::mat4 Projection;
     glm::mat4 View;
 };
+
 // Helper colors for visual diversity
 inline  std::vector<glm::vec3> colors = {
     glm::vec3{1.0f, 0.0f, 0.0f},   // Red

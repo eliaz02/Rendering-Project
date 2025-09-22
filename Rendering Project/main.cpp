@@ -25,6 +25,7 @@
 #include <ctime>   // for seeding rand
 
 #include "DemoScene.h"
+#include "exameScene.h"
 #include "EntityComponentSysetm.h"
 
 const int WIDTH{ 1600};
@@ -40,11 +41,11 @@ int main()
         // 1. Create the renderer
         auto renderer = std::make_unique<DeferredRenderer>(context);
 
-        // 2. Create the scene, passing ownership of the renderer
-        auto scene = std::make_unique<MyDemoScene>(std::move(renderer));
+        // 2. Create the scene
+        auto scene = std::make_unique<ExameScene>(std::move(renderer));
 
-        // 3. Initialize the scene (this calls render
-        scene->initialize();
+        // 3. Initialize the scene  
+        scene->initialize();  
 
         double lastTime{ 0.0 };
         int frameCount{ 0 };

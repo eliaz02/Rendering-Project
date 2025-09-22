@@ -28,6 +28,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="exameScene.h" />
     <ClInclude Include="WindowContext.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Debugging.h" />
