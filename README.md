@@ -1,6 +1,10 @@
-# OpenGL Rendering Engine
+# Simple Rendering Engine
 
-A modern C++ rendering engine built with OpenGL, featuring deferred rendering, shadow mapping, and a flexible Entity-Component-System architecture.
+A modular C++ rendering engine built with OpenGL, featuring shadow mapping and a flexible Entity-Component-System architecture. Currently implements deferred rendering with plans for additional rendering backends.
+
+## Disclaimer
+
+This project was created for learning purposes, so the code style varies throughout different files as my understanding evolved during development. The handling of external dependencies like Assimp and GLEW may not follow best practices - I opted to include them directly in the project to ensure ease of setup and compilation.
 
 ## Features
 
@@ -50,7 +54,7 @@ A modern C++ rendering engine built with OpenGL, featuring deferred rendering, s
 
 ### Prerequisites
 1. Install CMake (3.16 or higher)
-2. Install a C++20 compatible compiler (Visual Studio 2022, GCC 10+, or Clang 11+)
+2. Install a C++20 compatible compiler (Visual Studio 2022, GCC 10+, or Clang 11+) 
 
 ### Windows (Visual Studio)
 ```bash
@@ -183,9 +187,8 @@ addComponent(animatedEntity, std::move(animComponent));
 
 - **WASD**: Camera movement
 - **Mouse**: Look around
-- **Ctrl+P**: Increase movement speed
-- **Ctrl+R**: Reset movement speed
-- **Mouse Wheel**: Zoom in/out
+- **Ctrl press**: Increase movement speed
+- **Ctrl relese**: Reset movement speed
 
 ## Technical Details
 
@@ -214,34 +217,12 @@ This project uses assets from Sketchfab with appropriate licensing:
 - Some models under Sketchfab Standard license
 - See individual license.txt files in Assets/ subdirectories
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## Troubleshooting
-
-### Common Issues
-
-**Build fails with missing dependencies:**
-- Ensure all submodules are initialized: `git submodule update --init --recursive`
-- Check that CMake can find all required libraries
-
-**Runtime crashes:**
-- Verify OpenGL 4.3+ support on your graphics card
-- Check that asset paths are correct in PathConfig.h
-- Ensure all required DLLs are in the output directory
-
-**Poor performance:**
-- Enable GPU hardware acceleration
-- Check that you're using the discrete GPU (not integrated graphics)
-- Verify shaders compile successfully (check console output)
 
 ## Roadmap
 
+- [ ] Object ancor concept
+- [ ] Forward Rendering  
 - [ ] PBR (Physically Based Rendering) materials
 - [ ] Screen Space Ambient Occlusion (SSAO)
 - [ ] Volumetric lighting
