@@ -5,6 +5,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <random>
+#include "PathConfig.h"
 
 
 // A concrete implementation of a simple scene
@@ -122,7 +123,7 @@ private:
             };
             BasicMesh::BSpline bs{ curvePoints, 1, 1, true };
             curveMesh->CreatePrimitive(&bs);
-            curveMesh->SetTextures("Assets/rock_wall/textures/rock_wall_13_diff_1k.jpg", "", "Assets/rock_wall/textures/rock_wall_13_nor_gl_1k.jpg");
+            curveMesh->SetTextures(getAssetFullPath("rock_wall/textures/rock_wall_13_diff_1k.jpg").c_str(), "", getAssetFullPath("rock_wall/textures/rock_wall_13_nor_gl_1k.jpg").c_str() );
             curveRenderer.mesh = curveMesh;
             addComponent(curveEntity, curveRenderer);
         }
@@ -141,7 +142,7 @@ private:
             auto terrainMesh = std::make_shared<BasicMesh>();
             BasicMesh::Square square{ 500, 100 };
             terrainMesh->CreatePrimitive(&square);
-            terrainMesh->SetTextures("Assets/laminate_floor_03_1k/textures/laminate_floor_03_diff_1k.jpg", "", "Assets/laminate_floor_03_1k/textures/laminate_floor_03_nor_gl_1k.jpg");
+            terrainMesh->SetTextures(getAssetFullPath("laminate_floor_03_1k/textures/laminate_floor_03_diff_1k.jpg").c_str(), "", getAssetFullPath("laminate_floor_03_1k/textures/laminate_floor_03_nor_gl_1k.jpg").c_str());
             terrainRenderer.mesh = terrainMesh;
            // addComponent(terrainEntity, terrainRenderer);
         }
@@ -152,7 +153,7 @@ private:
             EntityID movingShipEntity = createEntity();
 
             auto shipMesh = std::make_shared<BasicMesh>();
-            shipMesh->LoadMesh("Assets/peachy_balloon_gift/scene.gltf");
+            shipMesh->LoadMesh(getAssetFullPath("peachy_balloon_gift/scene.gltf").c_str());
             MeshRenderer shipRenderer;
             shipRenderer.mesh = shipMesh;
 
@@ -248,6 +249,6 @@ private:
 
     void createSkybox() {
         // Set the skybox for the scene's renderer
-        setSkybox("Assets/skybox/", faces);
+        setSkybox(getAssetFullPath("skybox/").c_str(), faces);
     }
 };

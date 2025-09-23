@@ -31,6 +31,7 @@
 #include "Skybox.h"
 #include "Animation.h"
 #include "Component.h"
+#include "PathConfig.h"
 
 
 
@@ -319,9 +320,9 @@ public:
         auto shader = std::make_shared<Shader>();
         auto shaderBox = std::make_shared<Shader>();
 
-        shader->load("shader/shadowMap.vert", "shader/shadowMap.frag");
+        shader->load(getShaderFullPath("shadowMap.vert").c_str(), getShaderFullPath("shadowMap.frag").c_str());
 
-        shaderBox->load("shader/shadowMapPoint.vert", "shader/shadowMapPoint.frag", "shader/shadowMapPoint.geom");
+        shaderBox->load(getShaderFullPath("shadowMapPoint.vert").c_str(), getShaderFullPath("shadowMapPoint.frag").c_str() , getShaderFullPath("shadowMapPoint.geom").c_str() );
 
         // Inizialize FBOs
         gbuffer->Init(m_context.getWidth(),m_context.getHeight());

@@ -18,7 +18,7 @@
 #include "Shader.h"
 #include "Debugging.h"
 #include "WindowContext.h"
-
+#include "PathConfig.h"
 
 class ShadowMapFBO
 {

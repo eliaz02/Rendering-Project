@@ -6,16 +6,17 @@
 #include <glad/gl.h>       
 #include "Texture.h"
 #include "Shader.h"
+#include "PathConfig.h"
 
 
 class Skybox
 {
 public:
 	Skybox();
-	Skybox(const char* const path, std::vector<std::string> faces, const char* const  vert = "shader/skyboxShader.vert", const char* const frag = "shader/skyboxShader.frag");
+	Skybox(const char* const path, std::vector<std::string> faces, const char* const  vert = getShaderFullPath("skyboxShader.vert").c_str(), const char* const frag = getShaderFullPath("skyboxShader.frag").c_str());
 	~Skybox();
 
-	void load(const char* const path, std::vector<std::string> faces, const char* const vert = "shader/skyboxShader.vert", const char* const frag = "shader/skyboxShader.frag");
+	void load(const char* const path, std::vector<std::string> faces, const char* const vert = getShaderFullPath("skyboxShader.vert").c_str() , const char* const frag = getShaderFullPath("skyboxShader.frag").c_str() );
 	void clear();
 	void Render(glm::mat4  projection, glm::mat4 view);
 	void initializeCubeData();

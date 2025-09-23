@@ -1,0 +1,17 @@
+#pragma once
+#include <string>
+
+// This file is configured by CMake.
+// It will be generated in the build directory.
+
+const std::string ASSET_PATH = "@PROJECT_SOURCE_DIR@/Assets";
+const std::string SHADER_PATH = "@PROJECT_SOURCE_DIR@/shader";
+
+// A helper function to get the full path to an asset
+inline std::string getAssetFullPath(const std::string& relativePath) {
+    return ASSET_PATH + "/" + relativePath;
+}
+// A helper function to get the full path to an shader
+inline std::string getShaderFullPath(const std::string& relativePath) {
+    return SHADER_PATH + "/" + relativePath;
+}

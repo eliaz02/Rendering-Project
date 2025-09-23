@@ -777,9 +777,9 @@ void GBufferFBO::Init(int s_Width, int s_Height)
 	shaderLighting = std::make_shared<Shader>();
 	shaderInstanced = std::make_shared<Shader>();
 	// create shader object 
-	shaderGeom->load("shader/Geometry_pass.vert", "shader/Geometry_pass.frag");
-	shaderInstanced->load("shader/Geometry_pass_instanced.vert", "shader/Geometry_pass.frag");
-	shaderLighting->load("shader/Lighting_pass_test.vert", "shader/Lighting_pass_test.frag");
+	shaderGeom->load(getShaderFullPath("Geometry_pass.vert").c_str(), getShaderFullPath("Geometry_pass.frag").c_str() );
+	shaderInstanced->load(getShaderFullPath("Geometry_pass_instanced.vert").c_str(), getShaderFullPath("Geometry_pass.frag").c_str() );
+	shaderLighting->load(getShaderFullPath("Lighting_pass_test.vert").c_str(), getShaderFullPath("Lighting_pass_test.frag").c_str() );
 
 }
 
@@ -1116,5 +1116,5 @@ void FXAA::deleteScreenQuad() {
 
 void FXAA::loadShaders() {
 	// You'll need to create these shader files
-	fxaaShader.load("shader/fxaa.vert", "shader/fxaa.frag");
+	fxaaShader.load(getShaderFullPath("fxaa.vert").c_str(), getShaderFullPath("fxaa.frag").c_str() );
 }
