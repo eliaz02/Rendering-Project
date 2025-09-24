@@ -222,12 +222,12 @@ This project uses assets from Sketchfab with appropriate licensing:
 ## Roadmap
 
 - [ ] Object ancor concept
-- [ ] Forward Rendering  
+- [ ] Forward Rendering
+- [ ] skeletal animation, and other type of aniamtion  
 - [ ] PBR (Physically Based Rendering) materials
-- [ ] Screen Space Ambient Occlusion (SSAO)
+- [ ] Screen Space Ambient Occlusion (SSAO) // i have already tried this but the performance on my pc was so poor that i deleted it 
 - [ ] Volumetric lighting
 - [ ] Particle systems
-- [ ] Audio integration
 - [ ] ImGui integration for debugging
 - [ ] Vulkan backend
 
