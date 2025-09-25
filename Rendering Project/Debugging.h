@@ -1,7 +1,7 @@
 #ifndef _OPENGL_DEBUG_
 #define _OPENGL_DEBUG_
-#include <glad/gl.h>       // Includi prima di qualsiasi altro file OpenGL
-#define GLFW_INCLUDE_NONE    // Evita che GLFW includa automaticamente gl.h
+#include <glad/gl.h>       
+#define GLFW_INCLUDE_NONE    
 #include <GLFW/glfw3.h>
 #include <string>
 #include <vector>

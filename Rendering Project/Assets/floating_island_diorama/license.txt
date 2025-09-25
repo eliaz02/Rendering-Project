@@ -1,0 +1,11 @@
+Model Information:
+* title:	Floating Island Diorama
+* source:	https://sketchfab.com/3d-models/floating-island-diorama-c119240ce59247b3a608657a1be2326b
+* author:	Zachidoo (https://sketchfab.com/Zachidoo)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Floating Island Diorama" (https://sketchfab.com/3d-models/floating-island-diorama-c119240ce59247b3a608657a1be2326b) by Zachidoo (https://sketchfab.com/Zachidoo) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

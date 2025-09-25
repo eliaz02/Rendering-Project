@@ -4,8 +4,8 @@
 #ifndef FRAME_BUFFER_OBJECT_H 
 #define FRAME_BUFFER_OBJECT_H
 
-#include <glad/gl.h>       // Includi prima di qualsiasi altro file OpenGL
-#define GLFW_INCLUDE_NONE    // Evita che GLFW includa automaticamente gl.h
+#include <glad/gl.h>       
+#define GLFW_INCLUDE_NONE    
 #include <GLFW/glfw3.h>
 
 #include <memory>
@@ -19,6 +19,11 @@
 #include "Debugging.h"
 #include "WindowContext.h"
 #include "PathConfig.h"
+
+/**
+*	All of this class serve the concrete IRender in the handeling of the Frame Buffer Object  
+*	for dealing: with the shadow casting, post processing effect and anti-aliasing
+*/
 
 class ShadowMapFBO
 {

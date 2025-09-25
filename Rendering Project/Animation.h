@@ -28,7 +28,7 @@ protected:
     float time;
 public:
     // pure virtual
-    virtual void updateTime(float time) = 0; // this interface update the animation just thorght time since is static 
+    virtual void updateTime(float time) = 0; // this interface update the animation just thorght time since is static (it doesn't recive any other dynamic input)
     virtual glm::vec3 getPosition() = 0;
     virtual glm::quat getRotation() = 0;
     virtual glm::vec3 getScale() = 0;
@@ -40,6 +40,18 @@ public:
 // Structure for B-spline transformation sequence
 class BSplineAnimation : public AbstractAnimation {
 public:
+/**
+    * @brief this functio  create a sequence of animation/movment that follow a Bspline curve
+    * @param points: vector of control points in the 3D space that decribe the curve
+    * @param time: vector of time stamp that descrive the time required to go from one control point to another. 
+    *   If the Bsline is closed the time has to be atleast of the same size of points, 
+    *   if the Bsline is open d the time has to be atleast of the same size of points - 3.
+    *   time vector support 2 different format :
+    *   this 2 are equivalent {0.0f, 1.0f, 2.0f, 3.0f, 4.0f} {1.0f, 1.0f, 1.0f, 1.0f, 1.0f} 
+    * @param isclosed: if is true it crate a closed bsline (useful for repiting animation).
+    *   there is no need to ajdust the control points for an open or closed version,  
+    *   but you may have to adjust the time.
+ */
     BSplineAnimation(const std::vector<glm::vec3>& points, const std::vector<float>& time, bool isclosed) :
         isClosed{ isclosed }
     {

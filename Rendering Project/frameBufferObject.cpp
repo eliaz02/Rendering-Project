@@ -1,9 +1,6 @@
 #include "frameBufferObject.h"
 
 
-// hello the code should have been made as following Strategy of Decoretor but
-// it would have been too long and complex to write and and i will obtein a flexiblity 
-// that would never be used.
 
 ShadowMapFBO::ShadowMapFBO(const unsigned int s_Width, const unsigned int s_Height) :
 	m_Width(s_Width),

@@ -397,3 +397,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+# Other utility file that i don't want in the final project 
+*.ps1
+.ps1

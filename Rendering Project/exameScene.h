@@ -109,7 +109,7 @@ private:
 
             Transform curveTransform;
             curveTransform.position = glm::vec3(-50.f, -1.99f, 0.f);
-            addComponent(curveEntity, curveTransform);
+            //addComponent(curveEntity, curveTransform);
 
             MeshRenderer curveRenderer;
             auto curveMesh = std::make_shared<BasicMesh>();
@@ -125,31 +125,219 @@ private:
             curveMesh->CreatePrimitive(&bs);
             curveMesh->SetTextures(getAssetFullPath("rock_wall/textures/rock_wall_13_diff_1k.jpg").c_str(), "", getAssetFullPath("rock_wall/textures/rock_wall_13_nor_gl_1k.jpg").c_str() );
             curveRenderer.mesh = curveMesh;
-            addComponent(curveEntity, curveRenderer);
+            //addComponent(curveEntity, curveRenderer);
         }
 
-        // --- Create Terrain ---
+        // --- Central island ---
         {
-            EntityID terrainEntity = createEntity(); 
+            EntityID centralIslandID = createEntity();
 
-            Transform terrainTransform;
-            terrainTransform.position = glm::vec3(0.f, -2.f, 0.f);
+            Transform centralIslandTR;
+            
+            centralIslandTR.scale = glm::vec3(0.001f);
 
-            terrainTransform.rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.0f, 0.0f, 0.0f));
-           // addComponent(terrainEntity, terrainTransform);
+            addComponent(centralIslandID, centralIslandTR);
 
-            MeshRenderer terrainRenderer;
-            auto terrainMesh = std::make_shared<BasicMesh>();
-            BasicMesh::Square square{ 500, 100 };
-            terrainMesh->CreatePrimitive(&square);
-            terrainMesh->SetTextures(getAssetFullPath("laminate_floor_03_1k/textures/laminate_floor_03_diff_1k.jpg").c_str(), "", getAssetFullPath("laminate_floor_03_1k/textures/laminate_floor_03_nor_gl_1k.jpg").c_str());
-            terrainRenderer.mesh = terrainMesh;
-           // addComponent(terrainEntity, terrainRenderer);
+            auto centralIslandMS = std::make_shared<BasicMesh>(); 
+            centralIslandMS->LoadMesh(getAssetFullPath("floating_island_diorama/scene.gltf").c_str()); 
+            MeshRenderer centralIslandMR;
+            centralIslandMR.mesh = centralIslandMS;
+            addComponent(centralIslandID, centralIslandMR); 
         }
 
+        // --- Inner ship ---
+        {
+            EntityID innerShipID = createEntity();
+
+            Transform innerShipTR;
+
+            addComponent(innerShipID, innerShipTR);
+
+            auto innerShipMS = std::make_shared<BasicMesh>();
+            //innerShipMS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            MeshRenderer innerShipMR;
+            innerShipMR.mesh = innerShipMS;
+            //addComponent(innerShipID, innerShipMS);
+        }
+        // --- Outer ship ---
+        {
+            EntityID outerShipID = createEntity();
+
+            Transform outerShipTR;
+
+            addComponent(outerShipID, outerShipTR);
+
+            auto outerShipMS = std::make_shared<BasicMesh>();
+           // outerShipMS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            MeshRenderer outerShipMR;
+            outerShipMR.mesh = outerShipMS;
+            //addComponent( outerShipID, outerShipMR );
+        }
+
+        // --- Many small island 1 ---
+        {
+            std::vector<glm::mat4> instanceMatrices;
+            const int numberOfInstances = 100;
+            std::random_device rd;
+            std::mt19937 generator(rd());
+
+            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f);
+            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
+            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
+
+            for (int i = 0; i < numberOfInstances; ++i) 
+            {
+            // --- Generate random transformation values ---
+                glm::vec3 position(
+                    positionXZ_dist(generator),
+                    positionY_dist(generator),
+                    positionXZ_dist(generator)
+                );
+                float angle = rotation_dist(generator);
+                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
+
+                float scale = scale_dist(generator);
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, position);
+                model = glm::rotate(model, angle, axis);
+                model = glm::scale(model, glm::vec3(scale));
+                instanceMatrices.push_back(model);
+            }
+            EntityID smallSiland1ID = createEntity();
+
+    
+            auto smallSiland1MS = std::make_shared<BasicMesh>();
+           // smallSiland1MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            InstancedMeshRenderer instancedCubeRenderer;
+            //addComponent(smallSiland1ID, std::move(instancedCubeRenderer));
+        }
+
+        // --- Many small island 2 ---
+        {
+            std::vector<glm::mat4> instanceMatrices;
+            const int numberOfInstances = 100;
+            std::random_device rd;
+            std::mt19937 generator(rd()); 
+
+            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f); 
+            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f); 
+            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f)); 
+            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f); 
+
+            for (int i = 0; i < numberOfInstances; ++i) 
+            {
+                // --- Generate random transformation values ---
+                glm::vec3 position(
+                    positionXZ_dist(generator), 
+                    positionY_dist(generator), 
+                    positionXZ_dist(generator) 
+                ); 
+                float angle = rotation_dist(generator); 
+                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f)); 
+
+                float scale = scale_dist(generator); 
+                glm::mat4 model = glm::mat4(1.0f); 
+                model = glm::translate(model, position); 
+                model = glm::rotate(model, angle, axis);
+                model = glm::scale(model, glm::vec3(scale));
+                instanceMatrices.push_back(model);
+            }
+            EntityID smallSiland2ID = createEntity();
+
+
+            auto smallSiland2MS = std::make_shared<BasicMesh>();
+           // smallSiland2MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            InstancedMeshRenderer instancedCubeRenderer;
+            instancedCubeRenderer.mesh = smallSiland2MS;
+            instancedCubeRenderer.instanceMatrices = instanceMatrices;
+            //addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
+        }
+
+        // --- Many cristal ---
+        {
+            std::vector<glm::mat4> instanceMatrices;
+            const int numberOfInstances = 100;
+            std::random_device rd;
+            std::mt19937 generator(rd());
+
+            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f);
+            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
+            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
+
+            for (int i = 0; i < numberOfInstances; ++i)
+            {
+                // --- Generate random transformation values ---
+                glm::vec3 position(
+                    positionXZ_dist(generator),
+                    positionY_dist(generator),
+                    positionXZ_dist(generator)
+                );
+                float angle = rotation_dist(generator);
+                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
+
+                float scale = scale_dist(generator);
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, position);
+                model = glm::rotate(model, angle, axis);
+                model = glm::scale(model, glm::vec3(scale));
+                instanceMatrices.push_back(model);
+            }
+            EntityID smallSiland2ID = createEntity();
+
+
+            auto smallSiland2MS = std::make_shared<BasicMesh>();
+           // smallSiland2MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            InstancedMeshRenderer instancedCubeRenderer;
+            instancedCubeRenderer.mesh = smallSiland2MS;
+            instancedCubeRenderer.instanceMatrices = instanceMatrices;
+           // addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
+        }
 
         // --- Moving ship ---
         {
+            std::vector<glm::mat4> instanceMatrices;
+            const int numberOfInstances = 100;
+            std::random_device rd;
+            std::mt19937 generator(rd());
+
+            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f);
+            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
+            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
+
+            for (int i = 0; i < numberOfInstances; ++i)
+            {
+                // --- Generate random transformation values ---
+                glm::vec3 position(
+                    positionXZ_dist(generator),
+                    positionY_dist(generator),
+                    positionXZ_dist(generator)
+                );
+                float angle = rotation_dist(generator);
+                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
+
+                float scale = scale_dist(generator);
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, position);
+                model = glm::rotate(model, angle, axis);
+                model = glm::scale(model, glm::vec3(scale));
+                instanceMatrices.push_back(model);
+            }
+            EntityID smallSiland2ID = createEntity();
+
+
+            auto smallSiland2MS = std::make_shared<BasicMesh>();
+            //smallSiland2MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            InstancedMeshRenderer instancedCubeRenderer;
+            instancedCubeRenderer.mesh = smallSiland2MS;
+            instancedCubeRenderer.instanceMatrices = instanceMatrices;
+            //addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
+        }
+
+
+        /*{
             EntityID movingShipEntity = createEntity();
 
             auto shipMesh = std::make_shared<BasicMesh>();
@@ -185,25 +373,23 @@ private:
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
             shipAniComponent.animation = std::move(movment);
             addComponent(movingShipEntity, std::move(shipAniComponent));
-        }
+        }*/
+        
 
+        {
+            EntityID BarrelsID = createEntity();
 
-        //{
-        //    EntityID BarrelsID = createEntity();
+            Transform barrelTransform; 
+            barrelTransform.scale = glm::vec3(0.1f);
+            addComponent(BarrelsID , barrelTransform);
 
-        //    Transform barrelTransform;
-        //    barrelTransform.matrix = glm::rotate( glm::mat4(0.5f) , glm::radians(90.0f),glm::vec3(0.f,0.f,1.f));
-        //    barrelTransform.matrix = glm::rotate(barrelTransform.matrix, glm::radians(90.0f),glm::vec3(1.f,0.f,0.f));
-        //    barrelTransform.matrix = glm::rotate(barrelTransform.matrix, glm::radians(90.0f),glm::vec3(0.f,1.f,0.f));
-        //    addComponent(BarrelsID , barrelTransform);
-
-        //    auto barrelMesh = std::make_shared<BasicMesh>();
-        //    barrelMesh->LoadMesh("Assets/peachy_balloon_gift/scene.gltf");
-        //    MeshRenderer barrelRenderer;
-        //    barrelRenderer.mesh = barrelMesh;
+            auto barrelMesh = std::make_shared<BasicMesh>();
+            //barrelMesh->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            MeshRenderer barrelRenderer; 
+            barrelRenderer.mesh = barrelMesh;
       
-        //    addComponent(BarrelsID, barrelRenderer);
-        //}
+            //addComponent(BarrelsID, barrelRenderer); 
+        }
 
         // --- Instanced barrel ---
         //{

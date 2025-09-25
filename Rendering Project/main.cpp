@@ -3,38 +3,23 @@
 #define GLFW_INCLUDE_NONE    // Evita che GLFW includa automaticamente gl.h
 #include <GLFW/glfw3.h>
 
-#include <iostream>
-#include <random>
-#include <math.h>
-#include <ranges>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>  
+#include <iostream> 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include "Utilities.h"
-#include "Shader.h"
-#include "Camera.h"
-#include "Mesh.h"
-#include "frameBufferObject.h"
-#include "LightStruct.h"
-#include "Skybox.h"
-#include "WindowContext.h"
-#include <cstdlib> // for rand()
-#include <ctime>   // for seeding rand
 
+#include "WindowContext.h"
 #include "DemoScene.h"
 #include "exameScene.h"
 #include "EntityComponentSysetm.h"
 
-const int WIDTH{ 1600};
-const int HEIGHT{ 1000 };
-const char* WindowName{ "finestra" };
+
 
 
 int main()
 {
+    const int WIDTH{ 1600 };
+    const int HEIGHT{ 1000 };
+    const char* WindowName{ "finestra" };
+
     WindowContext context{ WIDTH ,HEIGHT ,WindowName };
     // --- ECS Application Setup ---
     { // Scope of the renderer
@@ -42,7 +27,7 @@ int main()
         auto renderer = std::make_unique<DeferredRenderer>(context);
 
         // 2. Create the scene
-        auto scene = std::make_unique<ExameScene>(std::move(renderer));
+        auto scene = std::make_unique<MyDemoScene>(std::move(renderer));
 
         // 3. Initialize the scene  
         scene->initialize();  
@@ -61,8 +46,7 @@ int main()
             context.processInput();
 
             context.updateTitle();
-            // render
-            // ------
+
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

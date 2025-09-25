@@ -1,0 +1,11 @@
+Model Information:
+* title:	Blue Crystals
+* source:	https://sketchfab.com/3d-models/blue-crystals-2a7c720e456f4e319d2e1b5b12e67c53
+* author:	Antonio Castro (https://sketchfab.com/antoniocastro)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Blue Crystals" (https://sketchfab.com/3d-models/blue-crystals-2a7c720e456f4e319d2e1b5b12e67c53) by Antonio Castro (https://sketchfab.com/antoniocastro) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
