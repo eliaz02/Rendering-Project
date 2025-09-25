@@ -871,15 +871,16 @@ bool BasicMesh::CreateBSpline(BSpline bspline)
     // Clear existing data
     ClearBuffer();
 
-    std::vector<float> sample{ 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f };
+    std::vector<float> sample{ 0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f };
 
     // Prepare control points for closed or open curve
     std::vector<glm::vec3> workingPoints;
 
+    std::vector<glm::vec3> uniquePoints; 
     if (bspline.IsColsed) {
         // For closed B-spline, we need to extend the control points array
         // Remove duplicate last point if it exists (same as first point)
-        std::vector<glm::vec3> uniquePoints = bspline.Points;
+        uniquePoints = bspline.Points;
         if (glm::length(bspline.Points.front() - bspline.Points.back()) < 0.0001f) {
             uniquePoints.pop_back(); // Remove duplicate last point
         }
@@ -906,7 +907,9 @@ bool BasicMesh::CreateBSpline(BSpline bspline)
     }
 
     // Calculate number of curves
-    unsigned int curveNumber = static_cast<unsigned int> (workingPoints.size()) - 3;
+    unsigned int curveNumber = bspline.IsColsed ?
+        static_cast<unsigned int>(uniquePoints.size()) :
+        static_cast<unsigned int>(workingPoints.size()) - 3;
 
     // Calculate total points needed
     unsigned int totalSamplePoints = static_cast<unsigned int> (sample.size()) * curveNumber;
