@@ -134,12 +134,12 @@ private:
 
             Transform centralIslandTR;
             
-            centralIslandTR.scale = glm::vec3(0.001f);
+            centralIslandTR.scale = glm::vec3(0.01f);
 
             addComponent(centralIslandID, centralIslandTR);
 
             auto centralIslandMS = std::make_shared<BasicMesh>(); 
-            centralIslandMS->LoadMesh(getAssetFullPath("floating_island_diorama/scene.gltf").c_str()); 
+            centralIslandMS->LoadMesh(getAssetFullPath("Golden_Galleon_0418173919_texture_obj/Golden_Galleon_0418173919_texture.obj").c_str()); 
             MeshRenderer centralIslandMR;
             centralIslandMR.mesh = centralIslandMS;
             addComponent(centralIslandID, centralIslandMR); 
@@ -150,28 +150,75 @@ private:
             EntityID innerShipID = createEntity();
 
             Transform innerShipTR;
-
+            glm::quat rotationX = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.f, 0.f, 0.f));
+            glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, -1.f, 0.f));
+            glm::quat rotationZ = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, 0.f, 1.f));
+            innerShipTR.rotation = (rotationY * rotationX * rotationZ);
+            innerShipTR.scale = glm::vec3(0.1f);
             addComponent(innerShipID, innerShipTR);
 
             auto innerShipMS = std::make_shared<BasicMesh>();
-            //innerShipMS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            innerShipMS->LoadMesh(getAssetFullPath("peachy_balloon_gift/scene.gltf").c_str());
             MeshRenderer innerShipMR;
             innerShipMR.mesh = innerShipMS;
-            //addComponent(innerShipID, innerShipMS);
+            addComponent(innerShipID, innerShipMR);
+
+            std::vector<glm::vec3> curvePoints = {
+                 glm::vec3{ -2.f, 0.0f, -2.f} *2.f,
+                 glm::vec3{ 2.5f, 0.5f, -7.0f} *2.f,
+                 glm::vec3{  5.0f, .0f, -3.0f}*2.f,
+                 glm::vec3{ 3.0f, 0.0f, 0.0f}*2.f,
+                 glm::vec3{ 6.0f, -0.5f, 1.0f}*2.f,
+                 glm::vec3{  4.5f, -1.2f, 5.0f}*2.f,
+                 glm::vec3{  1.0f, -1.0f, 3.0f}*2.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f}*2.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f}*2.f,
+                 glm::vec3{  -5, 0.0f, -2.0f}*2.f,
+                 glm::vec3{  -4, 0.0f, -5.0f}*2.f
+            };
+            std::vector<float> timestamp = {
+                2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 2.0, 2.0, 2.0, 2.0
+            } ;
+            Animation AniComponent;
+            std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
+            AniComponent.animation = std::move(movment);
+            addComponent(innerShipID, std::move(AniComponent));
         }
         // --- Outer ship ---
         {
             EntityID outerShipID = createEntity();
 
             Transform outerShipTR;
-
+            outerShipTR.scale = glm::vec3(0.01);
+            outerShipTR.position = glm::vec3(5.f);
             addComponent(outerShipID, outerShipTR);
 
             auto outerShipMS = std::make_shared<BasicMesh>();
-           // outerShipMS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            outerShipMS->LoadMesh(getAssetFullPath("concept_art_shopping_kid/scene.gltf").c_str());
             MeshRenderer outerShipMR;
             outerShipMR.mesh = outerShipMS;
-            //addComponent( outerShipID, outerShipMR );
+            addComponent( outerShipID, outerShipMR );
+
+            std::vector<glm::vec3> curvePoints = {
+                 glm::vec3{ -2.f, 0.0f, -2.f} *4.f,
+                 glm::vec3{ 2.5f, 0.0f, -7.0f} *4.f,
+                 glm::vec3{  5.0f, 0.0f, -3.0f}*4.f,
+                 glm::vec3{ 3.0f, 0.0f, 0.0f}*4.f,
+                 glm::vec3{ 6.0f, 0.f, 1.0f}*4.f,
+                 glm::vec3{  4.5f, 0.0f, 5.0f}*4.f,
+                 glm::vec3{  1.0f, 0.0f, 3.0f}*4.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f}*4.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f}*4.f,
+                 glm::vec3{  -5, 0.0f, -2.0f}*4.f,
+                 glm::vec3{  -4, 0.0f, -5.0f}*4.f
+            };
+            std::vector<float> timestamp = {
+                25.0 , 25.0 ,25.0 , 25.0 , 25.0 , 25.0 , 25.0 , 25.0 ,25.0, 25.0,25.0, 25.0
+            };
+            Animation cubeAniComponent;
+            std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
+            cubeAniComponent.animation = std::move(movment);
+            addComponent(outerShipID, std::move(cubeAniComponent));
         }
 
         // --- Many small island 1 ---
@@ -220,8 +267,8 @@ private:
             std::random_device rd;
             std::mt19937 generator(rd()); 
 
-            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f); 
-            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f); 
+            std::uniform_real_distribution<float> positionXZ_dist(-40.0f, 40.0f); 
+            std::uniform_real_distribution<float> positionY_dist(-40.0f, 40.0f); 
             std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f)); 
             std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f); 
 
@@ -233,13 +280,11 @@ private:
                     positionY_dist(generator), 
                     positionXZ_dist(generator) 
                 ); 
-                float angle = rotation_dist(generator); 
-                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f)); 
 
-                float scale = scale_dist(generator); 
+
+                float scale = 0.11;
                 glm::mat4 model = glm::mat4(1.0f); 
                 model = glm::translate(model, position); 
-                model = glm::rotate(model, angle, axis);
                 model = glm::scale(model, glm::vec3(scale));
                 instanceMatrices.push_back(model);
             }
@@ -247,11 +292,11 @@ private:
 
 
             auto smallSiland2MS = std::make_shared<BasicMesh>();
-           // smallSiland2MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            smallSiland2MS->LoadMesh(getAssetFullPath("blue_crystals/scene.gltf").c_str());
             InstancedMeshRenderer instancedCubeRenderer;
             instancedCubeRenderer.mesh = smallSiland2MS;
             instancedCubeRenderer.instanceMatrices = instanceMatrices;
-            //addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
+            addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
         }
 
         // --- Many cristal ---
@@ -261,8 +306,8 @@ private:
             std::random_device rd;
             std::mt19937 generator(rd());
 
-            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f);
-            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> positionXZ_dist(-40.0f, 40.0f);
+            std::uniform_real_distribution<float> positionY_dist(-40.f, 40.0f);
             std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
             std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
 
@@ -274,10 +319,10 @@ private:
                     positionY_dist(generator),
                     positionXZ_dist(generator)
                 );
-                float angle = rotation_dist(generator);
+                float angle =0.f;
                 glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
 
-                float scale = scale_dist(generator);
+                float scale = 0.01f;
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, position);
                 model = glm::rotate(model, angle, axis);
@@ -288,11 +333,11 @@ private:
 
 
             auto smallSiland2MS = std::make_shared<BasicMesh>();
-           // smallSiland2MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+            smallSiland2MS->LoadMesh(getAssetFullPath("stylized_mini_floating_island/scene.gltf").c_str());
             InstancedMeshRenderer instancedCubeRenderer;
             instancedCubeRenderer.mesh = smallSiland2MS;
             instancedCubeRenderer.instanceMatrices = instanceMatrices;
-           // addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
+            addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
         }
 
         // --- Moving ship ---
@@ -337,43 +382,6 @@ private:
         }
 
 
-        /*{
-            EntityID movingShipEntity = createEntity();
-
-            auto shipMesh = std::make_shared<BasicMesh>();
-            shipMesh->LoadMesh(getAssetFullPath("peachy_balloon_gift/scene.gltf").c_str());
-            MeshRenderer shipRenderer;
-            shipRenderer.mesh = shipMesh;
-
-            addComponent(movingShipEntity, shipRenderer);
-
-   
-            Transform shipTransform;
-            
-            glm::quat rotationX = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.f, 0.f, 0.f));
-            glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, -1.f, 0.f));
-            glm::quat rotationZ = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, 0.f, 1.f));
-            shipTransform.rotation = (rotationY * rotationX * rotationZ);
-            shipTransform.position = glm::vec3(-50.f,5.f, 0.f);
-            shipTransform.scale = glm::vec3(0.1);
-            addComponent(movingShipEntity, shipTransform);
-
-            std::vector<glm::vec3> curvePoints = {
-                glm::vec3{0.0f,0.0f,0.0f}*10.f, glm::vec3{1.5f,0.0f,-1.0f}*10.f,
-                glm::vec3{2.0f,0.0f,-3.0f}*10.f, glm::vec3{4.5f,0.0f,-1.0f}*10.f,
-                glm::vec3{7.0f,0.0f,-1.5f}*10.f, glm::vec3{8.0f,0.0f,3.5f}*10.f,
-                glm::vec3{8.0f,0.0f,5.0f}*10.f, glm::vec3{6.25f,0.0f,4.0f}*10.f,
-                glm::vec3{5.5f,0.0f,6.5f}*10.f, glm::vec3{3.5f,0.0f,2.5f}*10.f,
-                glm::vec3{2.5f,0.0f,1.5f}*10.f, glm::vec3{0.0f,0.0f,0.0f}*10.f
-            };
-            std::vector<float> timestamp = {
-                5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0, 5.0
-            };
-            Animation shipAniComponent;
-            std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
-            shipAniComponent.animation = std::move(movment);
-            addComponent(movingShipEntity, std::move(shipAniComponent));
-        }*/
         
 
         {

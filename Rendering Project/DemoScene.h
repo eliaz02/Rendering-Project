@@ -108,20 +108,25 @@ private:
             EntityID curveEntity = createEntity();
 
             Transform curveTransform;
-            curveTransform.position = glm::vec3(-50.f, 1.f, 0.f);
+            curveTransform.position = glm::vec3(-0.f, 1.f, 0.f);
             addComponent(curveEntity, curveTransform);
 
             MeshRenderer curveRenderer;
             auto curveMesh = std::make_shared<BasicMesh>();
             std::vector<glm::vec3> curvePoints = {
-                glm::vec3{0.0f,0.0f,0.0f}*10.f, glm::vec3{1.5f,0.0f,-1.0f}*10.f,
-                glm::vec3{2.0f,0.0f,-3.0f}*10.f, glm::vec3{4.5f,0.0f,-1.0f}*10.f,
-                glm::vec3{7.0f,0.0f,-1.5f}*10.f, glm::vec3{8.0f,0.0f,3.5f}*10.f,
-                glm::vec3{8.0f,0.0f,5.0f}*10.f, glm::vec3{6.25f,0.0f,4.0f}*10.f,
-                glm::vec3{5.5f,0.0f,6.5f}*10.f, glm::vec3{3.5f,0.0f,2.5f}*10.f,
-                glm::vec3{2.5f,0.0f,1.5f}*10.f, glm::vec3{0.0f,0.0f,0.0f}*10.f
+                 glm::vec3{ -0.5f, 0.8f, -2.5f} *5.f, // Start of long straightaway
+                 glm::vec3{ 3.0f, 0.5f, -6.0f} *5.f, // End of long straightaway
+                 glm::vec3{  5.5f, .0f, -3.5f}*5.f, // Apex of tight corner
+                 glm::vec3{ 3.0f, 0.0f, 0.0f}*5.f, // Start of sweeping curve
+                 glm::vec3{ 6.0f, -0.5f, 3.0f}*5.f,
+                 glm::vec3{  4.5f, -1.2f, 5.0f}*5.f,
+                 glm::vec3{  1.0f, -1.0f, 3.0f}*5.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f}*5.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f}*5.f,
+                 glm::vec3{  -5, 0.0f, -2.0f}*5.f,
+                 glm::vec3{  -4, 0.0f, -5.0f}*5.f
             };
-            BasicMesh::BSpline bs{ curvePoints, 1, 1, false };
+            BasicMesh::BSpline bs{ curvePoints, 1, 1, true };
             curveMesh->CreatePrimitive(&bs);
             curveMesh->SetTextures(getAssetFullPath("rock_wall/textures/rock_wall_13_diff_1k.jpg").c_str(), "", getAssetFullPath("rock_wall/textures/rock_wall_13_nor_gl_1k.jpg").c_str());
             curveRenderer.mesh = curveMesh;
@@ -165,17 +170,20 @@ private:
             addComponent(movingCubeEntity, movingCubTransform);
 
             std::vector<glm::vec3> curvePoints = {
-                 glm::vec3{   2.0f, 0.8f, 2.0f} * 5.f, // Start of long straightaway
-                 glm::vec3{  -3.0f, 0.5f, -1.0f} *5.f, // End of long straightaway
-                 glm::vec3{  -5.0f, .0f, -3.0f}*5.f, // Apex of tight corner
-                 glm::vec3{ -5.0f, 0.0f, -2.0f}*5.f, // Start of sweeping curve
-                 glm::vec3{ -2.0f, -0.5f, -5.0f}*5.f,
-                 glm::vec3{  2.0f, -1.2f, -1.0f}*5.f,
-                 glm::vec3{  5.0f, -1.0f, 0.0f}*5.f,
-                 glm::vec3{  5.0f, 0.0f, 1.0f}*5.f
+                 glm::vec3{ -0.5f, 0.8f, -2.5f} *2.f, 
+                 glm::vec3{ 3.0f, 0.5f, -6.0f} *2.f, 
+                 glm::vec3{  5.5f, .0f, -3.5f}*2.f,
+                 glm::vec3{ 3.0f, 0.0f, 0.0f}*2.f, 
+                 glm::vec3{ 6.0f, -0.5f, 3.0f}*2.f,
+                 glm::vec3{  4.5f, -1.2f, 5.0f}*2.f,
+                 glm::vec3{  1.0f, -1.0f, 3.0f}*2.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f}*2.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f}*2.f,
+                 glm::vec3{  -5, 0.0f, -2.0f}*2.f,
+                 glm::vec3{  -4, 0.0f, -5.0f}*2.f
             };
             std::vector<float> timestamp = {
-                1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 ,1.0
+                1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 ,1.0, 1.0,1.0, 1.0
             };
             Animation cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
@@ -198,23 +206,26 @@ private:
             addComponent(movingCubeEntity, movingCubTransform);
 
             std::vector<glm::vec3> curvePoints = {
-                glm::vec3{ 0.0f,  2.5f, 0.0f}*2.f,
-                glm::vec3{ 2.0f,  1.5f, 0.0f}*2.f,
-                glm::vec3{ 1.5f, -2.0f, 0.0f}*2.f,
-                glm::vec3{ 0.0f, -1.0f, 0.0f}*2.f,
-                glm::vec3{-1.5f, -2.0f, 0.0f}*2.f,
-                glm::vec3{-2.0f,  1.5f, 0.0f}*2.f
+                 glm::vec3{ -2.f, 0.0f, -2.f} *4.f,
+                 glm::vec3{ 2.5f, 0.5f, -7.0f} *4.f,
+                 glm::vec3{  5.0f, .0f, -3.0f}*4.f,
+                 glm::vec3{ 3.0f, 0.0f, 0.0f}*4.f,
+                 glm::vec3{ 6.0f, -0.5f, 1.0f}*4.f,
+                 glm::vec3{  4.5f, -1.2f, 5.0f}*4.f,
+                 glm::vec3{  1.0f, -1.0f, 3.0f}*4.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f}*4.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f}*4.f,
+                 glm::vec3{  -5, 0.0f, -2.0f}*4.f,
+                 glm::vec3{  -4, 0.0f, -5.0f}*4.f
             };
             std::vector<float> timestamp = {
-                1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0, 1.0f
+                2.0 , 2.0 ,2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 2.0 ,2.0, 2.0,2.0, 2.0
             };
             Animation cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
             cubeAniComponent.animation = std::move(movment);
             addComponent(movingCubeEntity, std::move(cubeAniComponent));
         }
-
-
 
 
         // --- Instanced cube ---
