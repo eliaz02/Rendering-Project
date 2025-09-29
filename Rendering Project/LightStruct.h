@@ -201,6 +201,23 @@ struct SpotLight : public Component
     glm::mat4 View;
 };
 
+namespace Colors
+{
+    // Use constexpr for compile-time constants
+    constexpr glm::vec3 Red = { 1.0f, 0.0f, 0.0f };
+    constexpr glm::vec3 Green = { 0.0f, 1.0f, 0.0f };
+    constexpr glm::vec3 Blue = { 0.0f, 0.0f, 1.0f };
+    constexpr glm::vec3 Yellow = { 1.0f, 1.0f, 0.0f };
+    constexpr glm::vec3 Cyan = { 0.0f, 1.0f, 1.0f };
+    constexpr glm::vec3 Magenta = { 1.0f, 0.0f, 1.0f };
+    constexpr glm::vec3 Orange = { 1.0f, 0.5f, 0.0f };
+    constexpr glm::vec3 Purple = { 0.5f, 0.0f, 1.0f };
+    constexpr glm::vec3 SkyBlue = { 0.0f, 0.5f, 1.0f };
+    constexpr glm::vec3 Lime = { 0.5f, 1.0f, 0.0f };
+    constexpr glm::vec3 White = { 1.0f, 1.0f, 1.0f };
+    constexpr glm::vec3 Black = { 0.0f, 0.0f, 0.0f };
+}
+
 // Helper colors for visual diversity
 inline  std::vector<glm::vec3> colors = {
     glm::vec3{1.0f, 0.0f, 0.0f},   // Red

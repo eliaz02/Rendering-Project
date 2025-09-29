@@ -25,7 +25,8 @@ protected:
     }
 
 private:
-    void createLights() {
+    void createLights() 
+    {
         // --- Create Sun Light ---
         EntityID sun = createEntity();
         DirLight sunLight = {
@@ -35,98 +36,95 @@ private:
         };
         addComponent(sun, sunLight);
 
+        
+
         // --- Create Point Lights ---
-        // These will also get a visual representation 
-        auto cubePrimitive = std::make_unique<BasicMesh::Cube>((double)1);
-        auto lightCubeMesh = std::make_shared<BasicMesh>();
+        auto starLanternMesh = std::make_shared<BasicMesh>();
 
-        lightCubeMesh->CreatePrimitive(cubePrimitive.get());
+        starLanternMesh->LoadMesh(getAssetFullPath("star_lantern/scene.gltf").c_str());
+       
+        std::vector<glm::vec3> posPoints = {
+                glm::vec3{ -2.f, 0.0f, -2.f} *2.f,
+                glm::vec3{ 2.5f, 0.0f, -7.0f} *2.f,
+                glm::vec3{  5.0f, 0.0f, -3.0f}*2.f,
+                glm::vec3{ 3.0f, 0.0f, 0.0f}*2.f,
+                glm::vec3{ 6.0f, 0.0f, 1.0f}*2.f,
+                glm::vec3{  4.5f, 0.0f, 5.0f}*2.f,
+                glm::vec3{  1.0f, 0.0f, 3.0f}*2.f,
+                glm::vec3{  -2.0f, 0.0f, 5.0f}*2.f,
+                glm::vec3{  -4.5f, 0.0f, 1.0f}*2.f,
+                glm::vec3{  -5, 0.0f, -2.0f}*2.f,
+                glm::vec3{  -4, 0.0f, -5.0f}*2.f
+        };
 
+        std::random_device rd; 
+        std::mt19937 generator(rd()); 
+
+        std::uniform_real_distribution<float> position_Y(-5.0f, 5.0f); 
+
+        // Define light properties
+        glm::vec3 ambient = 0.1f * Colors::Blue;
+        glm::vec3 diffuse = 0.8f * Colors::Blue;
+        glm::vec3 specular = glm::vec3(1.0f);
         float near = 1.0f;
         float far = 25.0f;
-        for (int i = 0; i < 10; ++i) {
+
+        for (size_t i = 0; i < posPoints.size(); i++) 
+        {
             EntityID lightEntity = createEntity();
 
-            float angle = glm::radians(i * 36.0f);
-            float radius = 10.0f + (i % 3);
-            float height = 3.0f + (i % 5);
-            glm::vec3 position = glm::vec3(radius * cos(angle), height, radius * sin(angle));
-
-            // Define light properties
-            glm::vec3 ambient = 0.1f * colors[i];
-            glm::vec3 diffuse = 0.8f * colors[i];
-            glm::vec3 specular = glm::vec3(1.0f);
-
+            glm::vec3 position = posPoints[i] + glm::vec3(0.f,10.f + position_Y(generator), 0.f); 
             // Add the light component to the entity
-            PointLight pointLight(position, ambient, diffuse, specular, near, far);
-            addComponent(lightEntity, pointLight);
+            PointLight pointLight(position, ambient, diffuse, specular, near, far); 
+            addComponent(lightEntity, pointLight); 
+             
+            Transform transform; 
+            transform.position = position; 
+            transform.scale = glm::vec3(0.1f); 
+            addComponent(lightEntity, transform); 
 
-            // Add components to make the light visible as a small cube
-            Transform transform;
-            transform.position = position;
-            transform.scale = glm::vec3(0.2f);
- 
-            addComponent(lightEntity, transform);
-
-            MeshRenderer Renderer;
-            Renderer.mesh = lightCubeMesh;
-            Renderer.castShadows = false; // Light cube should not cast shadows
-            addComponent(lightEntity, Renderer);
+            MeshRenderer renderer; 
+            renderer.mesh = starLanternMesh; 
+            renderer.receiveShadows = false;  
+            addComponent(lightEntity, renderer);  
         }
 
         // --- Create Spot Lights ---
-        float near_plane = 1.0f;
-        float far_plane = 25.0f;
-        glm::vec2 cut = glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f)));
-        glm::vec3 attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
+        auto purpleLanternMesh = std::make_shared<BasicMesh>(); 
+        purpleLanternMesh->LoadMesh(getAssetFullPath("spherical_japanese_paper_lantern/scene.gltf").c_str()); 
 
-        for (size_t i = 0; i < colors.size(); i++) {
-            EntityID lightEntity = createEntity();
+        float near_plane = 1.0f;  
+        float far_plane = 25.0f;   
+        glm::vec2 cut = glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(17.5f)));  
+        glm::vec3 attenuation = glm::vec3(1.0f, 0.09f, 0.032f);  
+        float numberlight{ 10.f };
+        float angleStep{ (2.f * 3.14159f) / numberlight };
+        for (size_t i = 0 ; i< numberlight; i++ )
+        {
 
-            float angle = static_cast<int>(i) * glm::radians(36.0f);
-            float radius = 5.0f;
-            glm::vec3 pos = glm::vec3(
-                cos(angle) * radius,
-                static_cast<float>(std::rand() % 2000) / 100.0f,
-                sin(angle) * radius
-            );
-            glm::vec3 dir = glm::normalize(glm::vec3(0.f, -1.f, 0.f));
-
-            // Add the spotlight component to the entity
+            EntityID lightEntity = createEntity(); 
+            glm::vec3 position{cos(angleStep * i),10.f,sin(angleStep * i)} ;
+            position = ((5.f * glm::vec3(1.f, 0.f, 1.f)) + glm::vec3(0.f, 1.f, 0.f)) * position;
             SpotLight spotLight(
-                pos, dir,
-                colors[i] * 0.1f, colors[i], colors[i] * 0.5f,
+                position, glm::vec3(0.f, -1.f, 0.f),
+                Colors::Purple * 0.1f, Colors::Purple, Colors::Purple * 0.5f,
                 near_plane, far_plane, cut, attenuation
             );
             addComponent(lightEntity, spotLight);
+
+            Transform transform; 
+            transform.position = position; 
+            transform.scale = glm::vec3(0.1f); 
+            addComponent(lightEntity, transform); 
+
+            MeshRenderer renderer; 
+            renderer.mesh = purpleLanternMesh;
+            renderer.receiveShadows = false; 
+            addComponent(lightEntity, renderer); 
         }
     }
 
     void createWorldObjects() {
-        // --- Create Curved pathway ---
-        {
-            EntityID curveEntity = createEntity();
-
-            Transform curveTransform;
-            curveTransform.position = glm::vec3(-50.f, -1.99f, 0.f);
-            //addComponent(curveEntity, curveTransform);
-
-            MeshRenderer curveRenderer;
-            auto curveMesh = std::make_shared<BasicMesh>();
-            std::vector<glm::vec3> curvePoints = {
-                glm::vec3{0.0f,0.0f,0.0f}*10.f, glm::vec3{1.5f,0.0f,-1.0f}*10.f,
-                glm::vec3{2.0f,0.0f,-3.0f}*10.f, glm::vec3{4.5f,0.0f,-1.0f}*10.f,
-                glm::vec3{7.0f,0.0f,-1.5f}*10.f, glm::vec3{8.0f,0.0f,3.5f}*10.f,
-                glm::vec3{8.0f,0.0f,5.0f}*10.f, glm::vec3{6.25f,0.0f,4.0f}*10.f,
-                glm::vec3{5.5f,0.0f,6.5f}*10.f, glm::vec3{3.5f,0.0f,2.5f}*10.f,
-                glm::vec3{2.5f,0.0f,1.5f}*10.f, glm::vec3{0.0f,0.0f,0.0f}*10.f
-            };
-            BasicMesh::BSpline bs{ curvePoints, 1, 1, true };
-            curveMesh->CreatePrimitive(&bs);
-            curveMesh->SetTextures(getAssetFullPath("rock_wall/textures/rock_wall_13_diff_1k.jpg").c_str(), "", getAssetFullPath("rock_wall/textures/rock_wall_13_nor_gl_1k.jpg").c_str() );
-            curveRenderer.mesh = curveMesh;
-            //addComponent(curveEntity, curveRenderer);
-        }
 
         // --- Central island ---
         {
@@ -139,13 +137,15 @@ private:
             addComponent(centralIslandID, centralIslandTR);
 
             auto centralIslandMS = std::make_shared<BasicMesh>(); 
-            centralIslandMS->LoadMesh(getAssetFullPath("Golden_Galleon_0418173919_texture_obj/Golden_Galleon_0418173919_texture.obj").c_str()); 
+            centralIslandMS->LoadMesh(getAssetFullPath("stylized_mini_floating_island/scene.gltf").c_str()); 
             MeshRenderer centralIslandMR;
             centralIslandMR.mesh = centralIslandMS;
             addComponent(centralIslandID, centralIslandMR); 
         }
 
         // --- Inner ship ---
+        auto ShipMS = std::make_shared<BasicMesh>();
+        ShipMS->LoadMesh(getAssetFullPath("peachy_balloon_gift/scene.gltf").c_str());
         {
             EntityID innerShipID = createEntity();
 
@@ -157,20 +157,19 @@ private:
             innerShipTR.scale = glm::vec3(0.1f);
             addComponent(innerShipID, innerShipTR);
 
-            auto innerShipMS = std::make_shared<BasicMesh>();
-            innerShipMS->LoadMesh(getAssetFullPath("peachy_balloon_gift/scene.gltf").c_str());
+            
             MeshRenderer innerShipMR;
-            innerShipMR.mesh = innerShipMS;
+            innerShipMR.mesh = ShipMS;
             addComponent(innerShipID, innerShipMR);
 
             std::vector<glm::vec3> curvePoints = {
                  glm::vec3{ -2.f, 0.0f, -2.f} *2.f,
-                 glm::vec3{ 2.5f, 0.5f, -7.0f} *2.f,
-                 glm::vec3{  5.0f, .0f, -3.0f}*2.f,
+                 glm::vec3{ 2.5f, 0.0f, -7.0f} *2.f,
+                 glm::vec3{  5.0f, 0.0f, -3.0f}*2.f,
                  glm::vec3{ 3.0f, 0.0f, 0.0f}*2.f,
-                 glm::vec3{ 6.0f, -0.5f, 1.0f}*2.f,
-                 glm::vec3{  4.5f, -1.2f, 5.0f}*2.f,
-                 glm::vec3{  1.0f, -1.0f, 3.0f}*2.f,
+                 glm::vec3{ 6.0f, 0.0f, 1.0f}*2.f,
+                 glm::vec3{  4.5f, 0.0f, 5.0f}*2.f,
+                 glm::vec3{  1.0f, 0.0f, 3.0f}*2.f,
                  glm::vec3{  -2.0f, 0.0f, 5.0f}*2.f,
                  glm::vec3{  -4.5f, 0.0f, 1.0f}*2.f,
                  glm::vec3{  -5, 0.0f, -2.0f}*2.f,
@@ -189,14 +188,15 @@ private:
             EntityID outerShipID = createEntity();
 
             Transform outerShipTR;
-            outerShipTR.scale = glm::vec3(0.01);
-            outerShipTR.position = glm::vec3(5.f);
+            glm::quat rotationX = glm::angleAxis(glm::radians(90.0f), glm::vec3(-1.f, 0.f, 0.f));
+            glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, -1.f, 0.f));
+            glm::quat rotationZ = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.f, 0.f, 1.f));
+            outerShipTR.rotation = (rotationY * rotationX * rotationZ);
+            outerShipTR.scale = glm::vec3(0.1f);
             addComponent(outerShipID, outerShipTR);
 
-            auto outerShipMS = std::make_shared<BasicMesh>();
-            outerShipMS->LoadMesh(getAssetFullPath("concept_art_shopping_kid/scene.gltf").c_str());
             MeshRenderer outerShipMR;
-            outerShipMR.mesh = outerShipMS;
+            outerShipMR.mesh = ShipMS;
             addComponent( outerShipID, outerShipMR );
 
             std::vector<glm::vec3> curvePoints = {
@@ -213,7 +213,7 @@ private:
                  glm::vec3{  -4, 0.0f, -5.0f}*4.f
             };
             std::vector<float> timestamp = {
-                25.0 , 25.0 ,25.0 , 25.0 , 25.0 , 25.0 , 25.0 , 25.0 ,25.0, 25.0,25.0, 25.0
+                5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0 , 5.0, 5.0, 5.0, 5.0
             };
             Animation cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
@@ -221,43 +221,45 @@ private:
             addComponent(outerShipID, std::move(cubeAniComponent));
         }
 
-        // --- Many small island 1 ---
+        // --- Many island ---
         {
             std::vector<glm::mat4> instanceMatrices;
             const int numberOfInstances = 100;
             std::random_device rd;
             std::mt19937 generator(rd());
 
-            std::uniform_real_distribution<float> positionXZ_dist(-20.0f, 20.0f);
-            std::uniform_real_distribution<float> positionY_dist(0.1f, 10.0f);
+            std::uniform_real_distribution<float> positionXZ_dist(-40.0f, 40.0f);
+            std::uniform_real_distribution<float> positionY_dist(-40.f, 40.0f);
             std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
             std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
 
-            for (int i = 0; i < numberOfInstances; ++i) 
+            for (int i = 0; i < numberOfInstances; ++i)
             {
-            // --- Generate random transformation values ---
+                // --- Generate random transformation values ---
                 glm::vec3 position(
                     positionXZ_dist(generator),
                     positionY_dist(generator),
                     positionXZ_dist(generator)
                 );
-                float angle = rotation_dist(generator);
+                float angle = 0.f;
                 glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
 
-                float scale = scale_dist(generator);
+                float scale = 0.01f;
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, position);
                 model = glm::rotate(model, angle, axis);
                 model = glm::scale(model, glm::vec3(scale));
                 instanceMatrices.push_back(model);
             }
-            EntityID smallSiland1ID = createEntity();
+            EntityID smallSiland2ID = createEntity();
 
-    
-            auto smallSiland1MS = std::make_shared<BasicMesh>();
-           // smallSiland1MS->LoadMesh(getAssetFullPath("the_last_stronghold_animated/scene.gltf").c_str());
+
+            auto smallSiland2MS = std::make_shared<BasicMesh>();
+            smallSiland2MS->LoadMesh(getAssetFullPath("flying_island/scene.gltf").c_str());
             InstancedMeshRenderer instancedCubeRenderer;
-            //addComponent(smallSiland1ID, std::move(instancedCubeRenderer));
+            instancedCubeRenderer.mesh = smallSiland2MS;
+            instancedCubeRenderer.instanceMatrices = instanceMatrices;
+            addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
         }
 
         // --- Many small island 2 ---
@@ -282,7 +284,7 @@ private:
                 ); 
 
 
-                float scale = 0.11;
+                float scale = 0.01;
                 glm::mat4 model = glm::mat4(1.0f); 
                 model = glm::translate(model, position); 
                 model = glm::scale(model, glm::vec3(scale));
@@ -292,48 +294,7 @@ private:
 
 
             auto smallSiland2MS = std::make_shared<BasicMesh>();
-            smallSiland2MS->LoadMesh(getAssetFullPath("blue_crystals/scene.gltf").c_str());
-            InstancedMeshRenderer instancedCubeRenderer;
-            instancedCubeRenderer.mesh = smallSiland2MS;
-            instancedCubeRenderer.instanceMatrices = instanceMatrices;
-            addComponent(smallSiland2ID, std::move(instancedCubeRenderer));
-        }
-
-        // --- Many cristal ---
-        {
-            std::vector<glm::mat4> instanceMatrices;
-            const int numberOfInstances = 100;
-            std::random_device rd;
-            std::mt19937 generator(rd());
-
-            std::uniform_real_distribution<float> positionXZ_dist(-40.0f, 40.0f);
-            std::uniform_real_distribution<float> positionY_dist(-40.f, 40.0f);
-            std::uniform_real_distribution<float> rotation_dist(0.0f, glm::radians(360.0f));
-            std::uniform_real_distribution<float> scale_dist(0.5f, 1.5f);
-
-            for (int i = 0; i < numberOfInstances; ++i)
-            {
-                // --- Generate random transformation values ---
-                glm::vec3 position(
-                    positionXZ_dist(generator),
-                    positionY_dist(generator),
-                    positionXZ_dist(generator)
-                );
-                float angle =0.f;
-                glm::vec3 axis = glm::normalize(glm::vec3(0.2f, 1.0f, 0.1f));
-
-                float scale = 0.01f;
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, position);
-                model = glm::rotate(model, angle, axis);
-                model = glm::scale(model, glm::vec3(scale));
-                instanceMatrices.push_back(model);
-            }
-            EntityID smallSiland2ID = createEntity();
-
-
-            auto smallSiland2MS = std::make_shared<BasicMesh>();
-            smallSiland2MS->LoadMesh(getAssetFullPath("stylized_mini_floating_island/scene.gltf").c_str());
+            smallSiland2MS->LoadMesh(getAssetFullPath("flying_island_2/scene.gltf").c_str());
             InstancedMeshRenderer instancedCubeRenderer;
             instancedCubeRenderer.mesh = smallSiland2MS;
             instancedCubeRenderer.instanceMatrices = instanceMatrices;

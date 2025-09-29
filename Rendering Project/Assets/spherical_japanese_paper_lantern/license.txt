@@ -1,0 +1,11 @@
+Model Information:
+* title:	Spherical japanese Paper Lantern
+* source:	https://sketchfab.com/3d-models/spherical-japanese-paper-lantern-4e3c3875766c47f885de8b6711be13b0
+* author:	WIsEman_Tavern (https://sketchfab.com/WIsEman_Tavern)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Spherical japanese Paper Lantern" (https://sketchfab.com/3d-models/spherical-japanese-paper-lantern-4e3c3875766c47f885de8b6711be13b0) by WIsEman_Tavern (https://sketchfab.com/WIsEman_Tavern) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

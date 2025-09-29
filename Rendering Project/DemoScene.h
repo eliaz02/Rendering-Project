@@ -152,6 +152,24 @@ private:
             terrainRenderer.mesh = terrainMesh;
            // addComponent(terrainEntity, terrainRenderer);
         }
+        // --- Moving Cube ---
+        {
+            EntityID movingCubeEntity = createEntity();
+
+; 
+            auto CubeMesh = std::make_shared<BasicMesh>(); 
+            CubeMesh->LoadMesh(getAssetFullPath("stylized_mini_floating_island/scene.gltf"));
+
+            MeshRenderer cubeRenderer; 
+            cubeRenderer.mesh = CubeMesh; 
+            addComponent(movingCubeEntity, cubeRenderer); 
+            Transform movingCubTransform; 
+            //movingCubTransform.rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.f, 0.f, 0.f)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1.f, 0.f, 0.f)); // japanese_paper_lantern
+            /*movingCubTransform.rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(1.f, 0.f, 0.f)) * glm::angleAxis(glm::radians(180.0f), glm::vec3(1.f, 0.f, 0.f));
+            movingCubTransform.scale = glm::vec3(0.05);*/
+            addComponent(movingCubeEntity, movingCubTransform);
+
+        }
 
 
         // --- Moving Cube ---
@@ -164,23 +182,23 @@ private:
 
             MeshRenderer cubeRenderer;
             cubeRenderer.mesh = CubeMesh;
-            addComponent(movingCubeEntity, cubeRenderer);
+            //addComponent(movingCubeEntity, cubeRenderer);
             Transform movingCubTransform;
-           // movingCubTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));;
-            addComponent(movingCubeEntity, movingCubTransform);
+            // movingCubTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));;
+            // addComponent(movingCubeEntity, movingCubTransform);
 
             std::vector<glm::vec3> curvePoints = {
                  glm::vec3{ -0.5f, 0.8f, -2.5f} *2.f, 
                  glm::vec3{ 3.0f, 0.5f, -6.0f} *2.f, 
-                 glm::vec3{  5.5f, .0f, -3.5f}*2.f,
-                 glm::vec3{ 3.0f, 0.0f, 0.0f}*2.f, 
-                 glm::vec3{ 6.0f, -0.5f, 3.0f}*2.f,
-                 glm::vec3{  4.5f, -1.2f, 5.0f}*2.f,
-                 glm::vec3{  1.0f, -1.0f, 3.0f}*2.f,
-                 glm::vec3{  -2.0f, 0.0f, 5.0f}*2.f,
-                 glm::vec3{  -4.5f, 0.0f, 1.0f}*2.f,
-                 glm::vec3{  -5, 0.0f, -2.0f}*2.f,
-                 glm::vec3{  -4, 0.0f, -5.0f}*2.f
+                 glm::vec3{  5.5f, .0f, -3.5f} * 2.f,
+                 glm::vec3{ 3.0f, 0.0f, 0.0f} * 2.f, 
+                 glm::vec3{ 6.0f, -0.5f, 3.0f} * 2.f,
+                 glm::vec3{  4.5f, -1.2f, 5.0f} * 2.f,
+                 glm::vec3{  1.0f, -1.0f, 3.0f} * 2.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f} * 2.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f} * 2.f,
+                 glm::vec3{  -5, 0.0f, -2.0f} * 2.f,
+                 glm::vec3{  -4, 0.0f, -5.0f} * 2.f
             };
             std::vector<float> timestamp = {
                 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 ,1.0, 1.0,1.0, 1.0
@@ -188,7 +206,7 @@ private:
             Animation cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
             cubeAniComponent.animation= std::move(movment);
-            addComponent(movingCubeEntity, std::move(cubeAniComponent));
+           // addComponent(movingCubeEntity, std::move(cubeAniComponent));
         }
         // --- Moving Cube ---
         {
@@ -200,23 +218,23 @@ private:
 
             MeshRenderer cubeRenderer;
             cubeRenderer.mesh = CubeMesh;
-            addComponent(movingCubeEntity, cubeRenderer);
+            //addComponent(movingCubeEntity, cubeRenderer);
             Transform movingCubTransform;
             // movingCubTransform.matrix = glm::translate(glm::mat4(1.f), glm::vec3(-50.f, -1.99f, 0.f));;
-            addComponent(movingCubeEntity, movingCubTransform);
+           // addComponent(movingCubeEntity, movingCubTransform);
 
             std::vector<glm::vec3> curvePoints = {
-                 glm::vec3{ -2.f, 0.0f, -2.f} *4.f,
-                 glm::vec3{ 2.5f, 0.5f, -7.0f} *4.f,
-                 glm::vec3{  5.0f, .0f, -3.0f}*4.f,
-                 glm::vec3{ 3.0f, 0.0f, 0.0f}*4.f,
-                 glm::vec3{ 6.0f, -0.5f, 1.0f}*4.f,
-                 glm::vec3{  4.5f, -1.2f, 5.0f}*4.f,
-                 glm::vec3{  1.0f, -1.0f, 3.0f}*4.f,
-                 glm::vec3{  -2.0f, 0.0f, 5.0f}*4.f,
-                 glm::vec3{  -4.5f, 0.0f, 1.0f}*4.f,
-                 glm::vec3{  -5, 0.0f, -2.0f}*4.f,
-                 glm::vec3{  -4, 0.0f, -5.0f}*4.f
+                 glm::vec3{ -2.f, 0.0f, -2.f} * 4.f,
+                 glm::vec3{ 2.5f, 0.5f, -7.0f} * 4.f,
+                 glm::vec3{  5.0f, .0f, -3.0f} * 4.f,
+                 glm::vec3{ 3.0f, 0.0f, 0.0f} * 4.f,
+                 glm::vec3{ 6.0f, -0.5f, 1.0f} * 4.f,
+                 glm::vec3{  4.5f, -1.2f, 5.0f} * 4.f,
+                 glm::vec3{  1.0f, -1.0f, 3.0f} * 4.f,
+                 glm::vec3{  -2.0f, 0.0f, 5.0f} * 4.f,
+                 glm::vec3{  -4.5f, 0.0f, 1.0f} * 4.f,
+                 glm::vec3{  -5, 0.0f, -2.0f} * 4.f,
+                 glm::vec3{  -4, 0.0f, -5.0f} * 4.f
             };
             std::vector<float> timestamp = {
                 2.0 , 2.0 ,2.0 , 2.0 , 2.0 , 2.0 , 2.0 , 2.0 ,2.0, 2.0,2.0, 2.0
@@ -224,10 +242,8 @@ private:
             Animation cubeAniComponent;
             std::unique_ptr<BSplineAnimation> movment = std::make_unique<BSplineAnimation>(curvePoints, timestamp, true);
             cubeAniComponent.animation = std::move(movment);
-            addComponent(movingCubeEntity, std::move(cubeAniComponent));
+           // addComponent(movingCubeEntity, std::move(cubeAniComponent));
         }
-
-
         // --- Instanced cube ---
         {
             std::vector<glm::mat4> instanceMatrices;
@@ -266,7 +282,7 @@ private:
             InstancedMeshRenderer instancedCubeRenderer; 
             instancedCubeRenderer.mesh = cubeMesh;
             instancedCubeRenderer.instanceMatrices = instanceMatrices;
-            addComponent(instanceCubes, std::move(instancedCubeRenderer));
+         //   addComponent(instanceCubes, std::move(instancedCubeRenderer));
         }
     }
 

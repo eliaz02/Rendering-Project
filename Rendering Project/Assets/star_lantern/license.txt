@@ -1,0 +1,11 @@
+Model Information:
+* title:	star Lantern
+* source:	https://sketchfab.com/3d-models/star-lantern-098d775b197f44fe91f8c6d3ab98c47c
+* author:	simsora13 (https://sketchfab.com/simsora13)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "star Lantern" (https://sketchfab.com/3d-models/star-lantern-098d775b197f44fe91f8c6d3ab98c47c) by simsora13 (https://sketchfab.com/simsora13) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
