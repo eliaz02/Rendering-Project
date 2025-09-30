@@ -48,50 +48,99 @@ set(HEADERS
 # Create the executable from your source and header files.
 add_executable(RenderingProject ${SOURCES} ${HEADERS})
 
-# Add the build directory to includes ---
+# Add the build directory to includes
 target_include_directories(RenderingProject PRIVATE
     "${CMAKE_CURRENT_BINARY_DIR}"
 )
-# --- Configuration for Dependencies (3dparty) ---
 
-# Add the include directories. CMake uses forward slashes.
-# These paths are relative to this CMakeLists.txt file.
-target_include_directories(RenderingProject PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/GLEW/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glad/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glfw-3.4.bin.WIN64/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/assimp/include"
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glm"
-)
+# --- Configuration for Dependencies ---
 
-# Add the library directories.
-# Note: The original project links the Debug assimp lib even in Release. We will replicate this first.
-target_link_directories(RenderingProject PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/GLEW/lib/Release/x64"
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glfw-3.4.bin.WIN64/lib-vc2022"
-    "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/assimp/lib/Debug"
-)
-
-# Link the libraries. CMake is smart enough to find the .lib files in the link directories.
-target_link_libraries(RenderingProject PRIVATE
-    assimp-vc143-mtd
-    glfw3
-)
-
-# Add preprocessor definitions.
-# Note: CMake automatically adds _DEBUG for Debug builds and NDEBUG for Release builds.
-# We only need to add definitions common to both, like _CONSOLE.
-target_compile_definitions(RenderingProject PRIVATE _CONSOLE)
-
-# --- Post-Build Step ---
-
-# This command copies the required DLL to the output directory after the build is complete.
-# The $<TARGET_FILE_DIR:RenderingProject> is a "generator expression" that correctly
-# resolves to the output folder (e.g., build/Debug) for any configuration.
-add_custom_command(
-    TARGET RenderingProject POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/assimp/bin/Debug/assimp-vc143-mtd.dll"
-        "$<TARGET_FILE_DIR:RenderingProject>"
-    COMMENT "Copying assimp DLL to output directory"
-)
+if(WIN32)
+    # Windows-specific configuration
+    target_include_directories(RenderingProject PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/GLEW/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glad/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glfw-3.4.bin.WIN64/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/assimp/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glm"
+    )
+    
+    target_link_directories(RenderingProject PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/GLEW/lib/Release/x64"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glfw-3.4.bin.WIN64/lib-vc2022"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/assimp/lib/Debug"
+    )
+    
+    target_link_libraries(RenderingProject PRIVATE
+        assimp-vc143-mtd
+        glfw3
+    )
+    
+    target_compile_definitions(RenderingProject PRIVATE _CONSOLE)
+    
+    # Post-build DLL copy
+    add_custom_command(
+        TARGET RenderingProject POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/assimp/bin/Debug/assimp-vc143-mtd.dll"
+            "$<TARGET_FILE_DIR:RenderingProject>"
+        COMMENT "Copying assimp DLL to output directory"
+    )
+    
+else()
+    # Linux-specific configuration
+    
+    # Find required packages using system package manager or local builds
+    find_package(PkgConfig REQUIRED)
+    
+    # Try to find GLFW3
+    find_package(glfw3 QUIET)
+    if(NOT glfw3_FOUND)
+        pkg_check_modules(GLFW3 REQUIRED glfw3)
+        target_include_directories(RenderingProject PRIVATE ${GLFW3_INCLUDE_DIRS})
+        target_link_libraries(RenderingProject PRIVATE ${GLFW3_LIBRARIES})
+    else()
+        target_link_libraries(RenderingProject PRIVATE glfw)
+    endif()
+    
+    # Find OpenGL
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(RenderingProject PRIVATE OpenGL::GL)
+    
+    # Find GLEW
+    find_package(GLEW QUIET)
+    if(GLEW_FOUND)
+        target_link_libraries(RenderingProject PRIVATE GLEW::GLEW)
+    else()
+        pkg_check_modules(GLEW REQUIRED glew)
+        target_include_directories(RenderingProject PRIVATE ${GLEW_INCLUDE_DIRS})
+        target_link_libraries(RenderingProject PRIVATE ${GLEW_LIBRARIES})
+    endif()
+    
+    # Find Assimp
+    find_package(assimp REQUIRED)
+    target_link_libraries(RenderingProject PRIVATE assimp)
+    
+    # GLM (header-only, might be in system or 3dparty)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glm")
+        target_include_directories(RenderingProject PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glm"
+        )
+    else()
+        find_package(glm REQUIRED)
+    endif()
+    
+    # GLAD (if using local copy)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glad/include")
+        target_include_directories(RenderingProject PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/3dparty/glad/include"
+        )
+    endif()
+    
+    # Link additional Linux libraries
+    target_link_libraries(RenderingProject PRIVATE
+        ${CMAKE_DL_LIBS}  # For dynamic linking
+        pthread           # For threading
+    )
+    
+endif()
