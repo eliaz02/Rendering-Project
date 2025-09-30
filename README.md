@@ -58,17 +58,21 @@ This project was created for learning purposes, so the code style varies through
 
 ### Windows (Visual Studio)
 ```bash
-mkdir build
+cd Rendering-Project
+mkdir build    
 cd build
-cmake .. -G "Visual Studio 17 2022" -A x64
+cmake "../Rendering Project" -G "Visual Studio 17 2022" -A x64
 cmake --build . --config Release
 ```
+or open the folder with visual studio and compile with it 
 
-### Linux/macOS
+### Linux/Archlinux
 ```bash
+sudo pacman -S mesa glu libglvnd glfw-x11 glew assimp glm cmake base-devel // for other distro the equivalent version 
+cd Rendering-Project
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake "../Rendering Project"
 make -j$(nproc)
 ```
 
@@ -217,11 +221,8 @@ This project uses assets from Sketchfab with appropriate licensing:
 - Some models under Sketchfab Standard license
 - See individual license.txt files in Assets/ subdirectories
 
-## Troubleshooting
-
 ## Roadmap
 
-- [ ] Object ancor concept
 - [ ] Forward Rendering
 - [ ] skeletal animation, and other type of aniamtion  
 - [ ] PBR (Physically Based Rendering) materials
