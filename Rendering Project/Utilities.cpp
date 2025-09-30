@@ -1,18 +1,11 @@
-#pragma once
-
 #include "Utilities.h"
-
-
 
 
 GLuint loadTexture(const char* path);
 
 
-
-
 // light  
 glm::vec3 lightPos(0.5f, 0.0f, 1.8f);
-
 
 
 #ifdef shadowdirlight
@@ -22,8 +15,6 @@ extern ShadowMapFBO shadowMap;
 extern Camera camera;
 
 extern bool firstMouse = true;
-
-
 
 
 

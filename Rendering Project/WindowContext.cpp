@@ -1,6 +1,7 @@
 #include "WindowContext.h"
 #include <stdexcept>
 #include <iostream>
+#include <format>
 
 #include "EntityComponentSysetm.h"
 
@@ -14,7 +15,7 @@ WindowContext::WindowContext(const int width, const  int height, const char* tit
     m_lastX(static_cast<float>(width) / 2.0f),
     m_lastY(static_cast<float>(height) / 2.0f)
 {
-    strcpy_s(m_title, title); 
+    snprintf(m_title, sizeof(m_title), "%s", title);
 
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
@@ -91,7 +92,12 @@ void WindowContext::updateTitle()
 
         // Update window title with FPS
         char title[64];
-        sprintf_s(title, 64, "%s | FPS: %.1f", m_title, m_fps);
+        // This creates a std::string
+        std::string formatted_str = std::format("{} | FPS: {:.1f}", m_title, m_fps);
+
+        // Copy it to your C-style buffer
+        strncpy(title, formatted_str.c_str(), 64 - 1);
+        title[64 - 1] = '\0';
         glfwSetWindowTitle(m_window, title);
     }
 }
