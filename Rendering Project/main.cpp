@@ -1,6 +1,6 @@
 
 #include <glad/gl.h> 
-#define GLFW_INCLUDE_NONE    // Evita che GLFW includa automaticamente gl.h
+#define GLFW_INCLUDE_NONE    // avoid that GLFW include gl.h
 #include <GLFW/glfw3.h>
 
 #include <iostream> 
