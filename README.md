@@ -68,7 +68,7 @@ or open the folder with visual studio and compile with it
 
 ### Linux/Archlinux
 ```bash
-sudo pacman -S mesa glu libglvnd glfw-x11 glew assimp glm cmake base-devel // for other distro the equivalent version 
+sudo pacman -S mesa glu libglvnd glfw-x11 glew assimp glm cmake base-devel  
 cd Rendering-Project
 mkdir build
 cd build
